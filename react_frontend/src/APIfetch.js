@@ -12,39 +12,47 @@ class APIFetch extends Component {
             API_output: null
         }
 
-        this.createAPIString = this.createAPIString.bind(this);
         this.fetchAPIData = this.fetchAPIData.bind(this);
+        this.createJSONforPost = this.createJSONforPost.bind(this);
     }
 
     componentDidUpdate(prevProps) {
-          if(prevProps.test_cell_list !== this.props.test_cell_list)
+        if(prevProps.num_rounds !== this.props.num_rounds)
+            this.setState({num_rounds: this.props.num_rounds});
+        else if(prevProps.num_recipients !== this.props.num_recipients)
+            this.setState({num_recipients: this.props.num_recipients});
+        else if(prevProps.test_cell_list !== this.props.test_cell_list)
             this.setState({test_cell_list: this.props.test_cell_list});
-      }
-
-    createAPIString(){
-        const PATH_BASE = 'http://127.0.0.1:5000/sim'
-        let query = "?"
-        this.state.test_cell_list.forEach(function (item, index) {
-            let open_rate = item['open_rate']/100
-            let percent_allocation = item['percent_allocation']/100
-            query += 'test_cell_' + index + '=' + item['subject_line'] + ',' + open_rate + ',' + percent_allocation + ',' + '&'
-        });
-
-        query += 'recipients=' + this.state.num_recipients + '&' + 'num_rounds=' + this.state.num_rounds
-        return PATH_BASE + query
     }
 
-      fetchAPIData(){
-        const APIString = this.createAPIString()
-        fetch(APIString).then(response => response.json()).then(result=>this.props.getData(result))
-      }
+    fetchAPIData(){
+        this.props.getData(null)
+        const PATH_BASE = 'http://127.0.0.1:5000/sim';
 
-      render(){
+        fetch(PATH_BASE, {
+            headers: {
+              'Accept': 'application/json',
+              'Content-Type': 'application/json'
+            },
+            method:'post',
+            body:JSON.stringify(this.createJSONforPost())
+        }).then(response => response.json()).then(result=>this.props.getData(result))
+    }
+
+    createJSONforPost(){
+        let json_post = {};
+        json_post["test_cells"] = this.state.test_cell_list;
+        json_post["num_rounds"] = this.state.num_rounds;
+        json_post["num_recipients"] = this.state.num_recipients;
+        return json_post;
+    }
+
+    render(){
         return(
             <div>
                  <button
                       onClick={() => {
-                          this.createAPIString();
+                          this.createJSONforPost();
                           this.fetchAPIData();
                     }}
                     >
@@ -52,7 +60,7 @@ class APIFetch extends Component {
                 </button>
             </div>
         )
-      }
+    }
 }
 
 export default APIFetch;

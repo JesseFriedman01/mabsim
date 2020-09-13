@@ -6,35 +6,25 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = 'df'
 CORS(app, support_credentials=True)
 
-def param_parsing(test_cell):
-    test_cell_split = test_cell.split(',')
-    name = test_cell_split[0]
-    open_rate = test_cell_split[1]
-    percent_allocation = test_cell_split[2]
-    return name, open_rate, percent_allocation
+def createTestCellsList(test_cells_from_json):
+    test_cells_list = []
+    for test_cell_params in test_cells_from_json:
+        test_cells_list.append(TestCell(test_cell_params['subject_line'], int(test_cell_params['open_rate'])/100, int(test_cell_params['percent_allocation'])/100))
+    return test_cells_list
 
 @app.route('/', methods=['GET'])
 def index():
     return('<a href="/sim">sim</a>')
 
-@app.route('/sim', methods=['GET'])
+@app.route('/sim', methods=['GET', 'POST'])
 def api():
-    args = request.args
-    test_cells = []
-    num_recipients = 0
-    num_rounds = 0
-
-    for key, value in args.items():
-
-        if key == 'recipients':
+    for key, value in request.json.items():
+        if key == 'num_recipients':
             num_recipients = int(value)
         elif key == 'num_rounds':
             num_rounds = int(value)
-        else:
-            name, open_rate, percent_allocation = param_parsing(value)
-            test_cells.append(TestCell(name, float(open_rate), float(percent_allocation)))
-
-    # print(num_rounds)
+        elif key == 'test_cells':
+            test_cells = createTestCellsList(value)
 
     sim = MAB_sim(test_cells, num_recipients, num_rounds)
     sim.init_mab()

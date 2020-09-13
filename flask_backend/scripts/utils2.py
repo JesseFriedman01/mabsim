@@ -2,6 +2,7 @@ import random
 from scipy.stats import beta
 import json
 import matplotlib.pyplot as plt
+import numpy as np
 
 class TestCell:
     def __init__(self, name, open_rate, percent_allocation, is_holdout=False):
@@ -87,16 +88,30 @@ class MAB_sim():
         return json.dumps(results)
 
 if __name__=='__main__':
-    test_cells = [TestCell('A', .1, .5), TestCell('B', .2, .5)]
 
-    num_members = 10000
-    num_rounds = 100
+    a = 7
+    b = 3
 
-    mab = MAB_sim(test_cells, num_members, num_rounds)
-    mab.init_mab()
-    mab.allocate_members()
+    quantile = np.arange(0, 1, 0.01)
 
-    print(mab.output())
+    pdf = beta.pdf(quantile, a, b, loc = 0, scale = 1)
+    mean = beta.stats(a, b, moments='m')
+    #
+    print(mean)
+
+    plt.plot(pdf)
+    plt.show()
+
+    # test_cells = [TestCell('A', .1, .5), TestCell('B', .2, .5)]
+    #
+    # num_members = 10000
+    # num_rounds = 100
+    #
+    # mab = MAB_sim(test_cells, num_members, num_rounds)
+    # mab.init_mab()
+    # mab.allocate_members()
+    #
+    # print(mab.output())
 
     # for test_cell in test_cells:
     #     print(len(test_cell.allocation_percentage_history))
