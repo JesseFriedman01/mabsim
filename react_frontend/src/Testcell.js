@@ -24,8 +24,6 @@ class TestCell extends Component {
         }
         this.addTestCell = this.addTestCell.bind(this);
         this.handleChangeTestCell = this.handleChangeTestCell.bind(this);
-//        this.props.getData(this.state.list)
-
         this.unique_cell_id = 1
     }
 
@@ -34,7 +32,6 @@ class TestCell extends Component {
     }
 
     addTestCell() {
-//        this.setState({unique_cell_id: this.state.unique_cell_id++})
         this.unique_cell_id++;
         this.setState({ list: this.state.list.concat({subject_line:"", open_rate:50, id:this.unique_cell_id}) });
         this.props.getData(this.state.list)
@@ -44,8 +41,6 @@ class TestCell extends Component {
         function getElem(elem){
             return elem.id===parseInt(event.target.id)
         }
-
-//        console.log(this.state.list)
 
         const prev_list = [...this.state.list]
 
