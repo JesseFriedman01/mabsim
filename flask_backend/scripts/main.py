@@ -6,10 +6,16 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = 'df'
 CORS(app, support_credentials=True)
 
+app.debug = True
+
 def createTestCellsList(test_cells_from_json):
     test_cells_list = []
     for test_cell_params in test_cells_from_json:
-        test_cells_list.append(TestCell(test_cell_params['subject_line'], int(test_cell_params['open_rate'])/100, int(test_cell_params['percent_allocation'])/100))
+        test_cells_list.append(TestCell(test_cell_params['subject_line'],
+                                        test_cell_params['id'],
+                                        int(test_cell_params['open_rate'])/100,
+                                        int(test_cell_params['percent_allocation'])/100)
+                               )
     return test_cells_list
 
 @app.route('/', methods=['GET'])
@@ -18,6 +24,9 @@ def index():
 
 @app.route('/sim', methods=['GET', 'POST'])
 def api():
+
+    print(request.json.items())
+
     for key, value in request.json.items():
         if key == 'num_recipients':
             num_recipients = int(value)
@@ -26,11 +35,13 @@ def api():
         elif key == 'test_cells':
             test_cells = createTestCellsList(value)
 
+
+
     sim = MAB_sim(test_cells, num_recipients, num_rounds)
     sim.init_mab()
     sim.allocate_members()
 
-    print(sim.output())
+    # print(sim.output())
 
     return sim.output()
 

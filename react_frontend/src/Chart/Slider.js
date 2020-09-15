@@ -27,13 +27,14 @@ class ChartSlider extends Component {
 
     render(){
         return (
-          <div style={{ margin: 50 }}>
+          <div style={{ margin: 50, width: 700, height: 10 }}>
              <p>{this.state.current_round}</p>
              <Slider
                   min={1}
                   max={this.props.num_rounds-1}
                   value={this.props.current_round}
                   onChange={this.handleSliderChange}
+                  onAfterChange={this.handleSliderChange}
                   railStyle={{
                     height: 2
                   }}

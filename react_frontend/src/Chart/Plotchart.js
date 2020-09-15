@@ -9,10 +9,18 @@ class PlotChart extends Component {
     constructor(props) {
         super(props);
 
+        this.chart_width = 800
+        this.chart_height = this.chart_width * .4
+
         this.state = {
             current_round: this.props.current_round,
             num_rounds: this.props.num_rounds,
-            API_output: this.props.API_output
+            API_output: this.props.API_output,
+            data_to_plot: this.props.data_to_plot,
+            chart_title: this.props.chart_title,
+            x_axis_title: this.props.x_axis_title,
+            y_axis_title: this.props.y_axis_title,
+            slice_y_axis: this.props.slice_y_axis
         };
     }
 
@@ -25,10 +33,15 @@ class PlotChart extends Component {
         var plots = [];
         const x_axis_vals = [...Array(parseInt(this.state.num_rounds)).keys()]
         for (var key in this.state.API_output){
+            if (this.state.slice_y_axis === "False")
+                var y_axis_vals = this.state.API_output[key][this.state.data_to_plot][this.state.current_round]
+            else
+                var y_axis_vals = this.state.API_output[key][this.state.data_to_plot].slice(0, this.state.current_round)
+
             const plot = {
                 x: x_axis_vals,
-                y: this.state.API_output[key]["allocation_percentage_history"].slice(0, this.state.current_round),
-                name: key,
+                y: y_axis_vals,
+                name: this.state.API_output[key]["name"],
                 type: 'scatter',
                 mode: 'lines'
             }
@@ -41,7 +54,21 @@ class PlotChart extends Component {
         return (
            <Plot
             data={ this.createPlots() }
-            layout={ {width: 1000, height: 400, title: 'Test cell selection over time', xaxis:{title:"Round", range:[0, parseInt(this.state.num_rounds)]}, yaxis:{title:"Allocation Percentage", range:[-0, 1.05]},} }
+            layout={
+                    {
+                     width: this.chart_width,
+                     height: this.chart_height,
+                     title: this.state.chart_title,
+                     xaxis:{
+                            title: this.state.x_axis_title,
+                            range:[0, parseInt(this.state.num_rounds)-1]
+                            },
+                     yaxis:{
+                            title:this.state.y_axis_title,
+
+                           },
+                      }
+                    }
             />
         )
     }
