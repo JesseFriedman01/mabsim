@@ -21,16 +21,16 @@ class APIFetch extends Component {
         this.getData = this.getData.bind(this);
     }
 
-    componentDidUpdate(prevProps) {
-        if(prevProps.num_rounds !== this.props.num_rounds)
-            this.setState({num_rounds: this.props.num_rounds});
-        if(prevProps.num_recipients !== this.props.num_recipients)
-            this.setState({num_recipients: this.props.num_recipients});
-        if(prevProps.test_cell_list !== this.props.test_cell_list)
-            this.setState({test_cell_list: this.props.test_cell_list});
-        if(prevProps.current_round !== this.props.current_round)
-            this.setState({current_round: this.props.current_round});
-    }
+//    componentDidUpdate(prevProps) {
+//        if(prevProps.num_rounds !== this.props.num_rounds)
+//            this.setState({num_rounds: this.props.num_rounds});
+//        if(prevProps.num_recipients !== this.props.num_recipients)
+//            this.setState({num_recipients: this.props.num_recipients});
+//        if(prevProps.test_cell_list !== this.props.test_cell_list)
+//            this.setState({test_cell_list: this.props.test_cell_list});
+//        if(prevProps.current_round !== this.props.current_round)
+//            this.setState({current_round: this.props.current_round});
+//    }
 
     createJSONforPost(){
         let json_post = {};
@@ -46,9 +46,10 @@ class APIFetch extends Component {
         socket.on('new_results', (result) => {
             this.props.getAPIData(JSON.parse(result));
         });
-
+        socket.on('progress', (result) => {
+            this.props.getAPIProgress(result);
+        });
     }
-
 
   sendRequest() {
     if (this.props.name === "Submit")
@@ -57,19 +58,18 @@ class APIFetch extends Component {
         socket.emit("fluctuate_mab_request", this.createJSONforPost())
   };
 
-    render(){
+  componentDidMount(){
+    this.sendRequest();
+    this.getData();
+  }
+
+   render(){
+        const summaryDiv = {
+            backgroundColor: 'white'
+
+        }
         return(
-            <div>
-                 <button
-                      onClick={() => {
-                          this.sendRequest();
-                          this.getData();
-//                          this.fetchAPIData();
-                    }}
-                    >
-                    {this.props.name}
-                </button>
-            </div>
+            null
         )
     }
 }

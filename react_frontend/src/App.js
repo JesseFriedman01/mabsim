@@ -5,6 +5,7 @@ import APIFetch from './APIfetch_socketio';
 import NavButtons from './Chart/Navbuttons';
 import ChartSlider from './Chart/Slider';
 import PlotChart from './Chart/Plotchart';
+import ProgressBarAPI from './Progressbar';
 
 class App extends Component {
   constructor(props) {
@@ -15,15 +16,14 @@ class App extends Component {
       num_recipients: 100,
       test_cell_list:null,
       unique_cell_id: 2,
-      API_status: null,
+      API_progress: null,
       API_output: null,
       slider_value: 2,
       current_round: 1
     };
 
-//    this.state.current_round = this.state
-
     this.getAPIData = this.getAPIData.bind(this);
+    this.getAPIProgress = this.getAPIProgress.bind(this);
     this.getTestCellData = this.getTestCellData.bind(this);
     this.getCurrentRoundFromNavButton = this.getCurrentRoundFromNavButton.bind(this);
     this.getCurrentRoundFromSlider = this.getCurrentRoundFromSlider.bind(this);
@@ -44,9 +44,16 @@ class App extends Component {
   }
 
   getAPIData(data){
-    this.setState({ API_status: "Loading..." })
+//    this.setState({ API_progress: 0 });
     this.setState({ API_output: data });
     this.setState({ current_round: this.state.num_rounds-1});
+//    this.setState({ API_progress: 0 });
+//    this.setState({ API_progress: 0 });
+  }
+
+  getAPIProgress(data){
+//    this.setState({ API_progress: 0 });
+    this.setState({ API_progress: data })
   }
 
  getCurrentRoundFromNavButton(data){
@@ -72,11 +79,11 @@ class App extends Component {
         <br></br> <br></br>
         { this.state.test_cell_list ?
             [
-                <APIFetch getAPIData={this.getAPIData} name={'Submit'} test_cell_list={this.state.test_cell_list} num_rounds={this.state.num_rounds}
+                <APIFetch getAPIData={this.getAPIData} getAPIProgress={this.getAPIProgress} name={'Submit'} test_cell_list={this.state.test_cell_list} num_rounds={this.state.num_rounds}
                            num_recipients={this.state.num_recipients} />,
 
-                <APIFetch getAPIData={this.getAPIData} current_round={this.state.current_round} name={'Fluctuate'} test_cell_list={this.state.test_cell_list} num_rounds={this.state.num_rounds}
-                           num_recipients={this.state.num_recipients} />
+                <APIFetch getAPIData={this.getAPIData} getAPIProgress={this.getAPIProgress} name={'Fluctuate'} test_cell_list={this.state.test_cell_list} num_rounds={this.state.num_rounds}
+                           num_recipients={this.state.num_recipients} current_round={this.state.current_round}/>
             ]
             :null
         }
@@ -101,7 +108,6 @@ class App extends Component {
                                 num_rounds={this.state.num_rounds}/>,
 
                             [
-
                                 <PlotChart current_round={this.state.current_round} num_rounds={this.state.num_rounds}
                                     API_output={this.state.API_output} data_to_plot="allocation_percentage_history"
                                     chart_title="Test cell selection"
@@ -121,10 +127,15 @@ class App extends Component {
                                     API_output={this.state.API_output} data_to_plot="beta_distribution"
                                     chart_title="Beta distribution"
                                     slice_y_axis="False"
+                                 />,
+
+                                <PlotChart current_round={this.state.current_round} num_rounds={this.state.num_rounds}
+                                    API_output={this.state.API_output} data_to_plot="allocation_num_members"
+                                    chart_title="Allocation by num members"
                                  />
                             ]
                         ]
-                        : this.state.API_status
+                        : <ProgressBarAPI current_progress_value={this.state.API_progress}/>
         }
       </div>
     );

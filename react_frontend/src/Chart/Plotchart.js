@@ -24,6 +24,11 @@ class PlotChart extends Component {
         };
     }
 
+    componentDidMount(){
+        console.log(this.state.API_output)
+
+    }
+
     componentDidUpdate(prevProps) {
       if(prevProps.current_round !== this.props.current_round)
         this.setState({current_round: this.props.current_round});
@@ -31,12 +36,12 @@ class PlotChart extends Component {
 
     createPlots(){
         var plots = [];
-        const x_axis_vals = [...Array(parseInt(this.state.num_rounds)).keys()]
+        const x_axis_vals = [...Array(100).keys()]
         for (var key in this.state.API_output){
             if (this.state.slice_y_axis === "False")
                 var y_axis_vals = this.state.API_output[key][this.state.data_to_plot][this.state.current_round]
             else
-                var y_axis_vals = this.state.API_output[key][this.state.data_to_plot].slice(0, this.state.current_round)
+                var y_axis_vals = this.state.API_output[key][this.state.data_to_plot].slice(0, this.state.current_round + 1)
 
             const plot = {
                 x: x_axis_vals,
