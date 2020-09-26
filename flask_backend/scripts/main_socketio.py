@@ -3,6 +3,8 @@ from flask_socketio import SocketIO, send, emit
 from random import randrange
 from flask_backend.scripts.utils2 import TestCell, MAB_sim
 from threading import Thread
+import json
+import time
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'mysecret'
@@ -17,7 +19,7 @@ connections = {}
 def createTestCellsList(test_cells_from_json):
     test_cells_list = []
     for test_cell_params in test_cells_from_json:
-        test_cells_list.append(TestCell(test_cell_params['subject_line'],
+        test_cells_list.append(TestCell(test_cell_params['name'],
                                         test_cell_params['id'],
                                         int(test_cell_params['open_rate'])/100,
                                         int(test_cell_params['percent_allocation'])/100)
@@ -46,9 +48,20 @@ def handleMessage(json_request):
     thread = Thread(target=sim.allocate_members)
     thread.start()
     while sim.status != 'done':
-        emit('progress', connections[request.sid].curr_round)
+        emit('progress', int((connections[request.sid].curr_round/num_rounds) * 100))
+        time.sleep(1)
+    emit('progress', 100)
     thread.join()
-    print(connections[request.sid].output())
+
+    # results = json.loads(connections[request.sid].output())
+
+    # for key in results:
+    #     print(key,':', results[key]['allocation_percentage_history'])
+
+    # for key in json.loads(connections[request.sid].output()):
+    #     print('dfdf', key)
+    # print(connections[request.sid].output())
+
     emit('new_results', connections[request.sid].output())
 
 def modifyTestCells(existing_test_cells, test_cells_from_json):
@@ -64,9 +77,8 @@ def modifyTestCells(existing_test_cells, test_cells_from_json):
 
 @socketIo.on("fluctuate_mab_request")
 def handleMessage(json_request):
-
     existing_MAB_object = connections[request.sid]
-
+    existing_MAB_object.status = 'running'
     existing_MAB_object.curr_round = json_request['current_round']
     # existing_MAB_object.test_cells = createTestCellsList(json_request['test_cells'])
 
@@ -74,8 +86,18 @@ def handleMessage(json_request):
 
     thread = Thread(target=existing_MAB_object.allocate_members)
     thread.start()
+    while existing_MAB_object.status != 'done':
+        emit('progress', int((connections[request.sid].curr_round/connections[request.sid].num_rounds) * 100))
+        time.sleep(1)
+    emit('progress', 100)
     thread.join()
-    print(connections[request.sid].output())
+    # print(connections[request.sid].output())
+
+    # results = json.loads(connections[request.sid].output())
+
+    # for key in results:
+    #     print(key,':', results[key]['allocation_percentage_history'])
+
     emit('new_results', existing_MAB_object.output())
     # for test_cell in existing_MAB_object.test_cells:
     #     print(test_cell.open_rate)
@@ -88,7 +110,9 @@ def handleMessage(json_request):
 
 @socketIo.on('disconnect')
 def handleDisconnect():
-    del(connections[request.sid])
+    open_connection_object = connections.get(request.sid)
+    if open_connection_object:
+        del(open_connection_object)
 
 if __name__ == '__main__':
     socketIo.run(app)
