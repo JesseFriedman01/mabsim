@@ -211,7 +211,7 @@ export default function HorizontalLinearStepper(props) {
 
   return (
     <Grid container justify="center">
-      <Grid item xs={8} className={classes.stepper}>
+      <Grid item className={classes.stepper}>
         <div className={classes.title_box}>
             Create Sim
         </div>

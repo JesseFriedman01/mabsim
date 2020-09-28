@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import ProgressBar from 'react-customizable-progressbar'
 import './progressbar.css'
 import Modal from '@material-ui/core/Modal';
+import Dialog from '@material-ui/core/Dialog';
 
 class ProgressBarAPI extends Component {
 
@@ -24,14 +25,17 @@ class ProgressBarAPI extends Component {
             return null
 
         return (
-                <ProgressBar
-                    progress={this.state.current_progress_value}
-                    radius={100}
-                >
-                <div>
-                   <div class="indicator" >{this.state.current_progress_value}%</div>
-                </div>
-                </ProgressBar>
+                <Modal open={true}>
+                    <div style={{justifyContent: 'center',  alignItems: 'center' }}>
+                        <ProgressBar
+                            progress={this.state.current_progress_value}
+                            radius={200}
+                            strokeWidth={30}
+                        >
+                           <div class="indicator" >{this.state.current_progress_value}%</div>
+                        </ProgressBar>
+                    </div>
+                </Modal>
 
         )
     }

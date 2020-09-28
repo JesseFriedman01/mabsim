@@ -10,6 +10,7 @@ import APIFetch from './APIfetch_socketio';
 import PlotChart from './Chart/Plotchart';
 import ProgressBarAPI from './Progressbar';
 import TestCellDrawer from './Chart/TestCelldrawer';
+import ChartGrid  from './Chart/Grid'
 
 class App extends Component {
     constructor(props) {
@@ -91,23 +92,10 @@ class App extends Component {
                 />
 
                 <Switch>
+
                     <Route exact path="/load" component={() => <div>Under Construction</div>} />
 
-                    <Route exact path="/charts" component={() =>
-                         [
-                            <PlotChart current_round="10" num_rounds={this.state.num_rounds}
-                                API_output={this.state.api_data} data_to_plot="allocation_percentage_history"
-                                chart_title="Test cell selection"
-                                x_axis_title="Round" y_axis_title="Allocation Percentage"/>,
-
-                            <PlotChart current_round="10" num_rounds={this.state.num_rounds}
-                                API_output={this.state.api_data} data_to_plot="actual_open_rate"
-                                chart_title="Actual open rate"
-                                x_axis_title="Round" y_axis_title="Open Rate"/>,
-
-                        ]
-                    }/>
-
+                    <Route exact path="/charts" component={() => <ChartGrid API_output={this.state.api_data} />} />
 
                     { this.state.status !== 'data collected' ?
                         <Route exact path="/create" component={() =>

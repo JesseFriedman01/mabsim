@@ -90,7 +90,6 @@ export default function TestCellDrawer(props) {
                 anchor="bottom"
                 open={props.shouldBeOpen}
                 onClose={props.shouldBeOpen}
-
               >
               <Container style={{padding:"20px", marginBottom:"20px", marginTop:"20px"}} >
               <h2>Modify open rate(s):</h2>
