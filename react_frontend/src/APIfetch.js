@@ -44,6 +44,7 @@ class APIFetch extends Component {
         json_post["test_cells"] = this.state.test_cell_list;
         json_post["num_rounds"] = this.state.num_rounds;
         json_post["num_recipients"] = this.state.num_recipients;
+        json_post["num_recipients"] = this.state.num_recipients;
         return json_post;
     }
 

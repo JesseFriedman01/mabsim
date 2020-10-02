@@ -10,7 +10,7 @@ import APIFetch from './APIfetch_socketio';
 import PlotChart from './Chart/Plotchart';
 import ProgressBarAPI from './Progressbar';
 import TestCellDrawer from './Chart/TestCelldrawer';
-import ChartGrid  from './Chart/Grid'
+import ChartGrid  from './Chart/Grid';
 
 class App extends Component {
     constructor(props) {
@@ -20,12 +20,12 @@ class App extends Component {
             campaign_name: null,
             num_recipients: null,
             num_rounds: null,
+            current_round: null,
             test_cells: null,
             status: null,
             api_data: null,
             api_progress: null,
-//            disable_test_cell_button: true
-            disable_test_cell_button: false,
+            disable_test_cell_button: true,
             test_cell_drawer_button_clicked: null,
             test_cell_drawer_open: false
         };
@@ -38,6 +38,7 @@ class App extends Component {
         this.getAPIData = this.getAPIData.bind(this);
         this.getAPIProgress = this.getAPIProgress.bind(this);
         this.getTestCellDrawerClicked = this.getTestCellDrawerClicked.bind(this);
+        this.getCurrentRound = this.getCurrentRound.bind(this);
     }
 
     getCampaignName(data){
@@ -53,23 +54,26 @@ class App extends Component {
     }
 
     getTestCells(data){
-        console.log('app', data)
         this.setState({ test_cells: data })
     }
 
     getStatus(data){
         this.setState({ status: data })
-        this.setState({ api_data: null })
     }
 
     getAPIData(data){
+        var d = new Date();
+        var n = d.getTime();
+        console.log(data, n)
         this.setState({ api_data: data })
-        this.setState({ input_data_status: null })
         this.setState({ disable_test_cell_button: false })
+        this.setState({ status: 'idle' })
     }
 
     getAPIProgress(data){
         this.setState({ api_progress: data })
+        if (data===100)
+            this.setState({ api_progress: 0 })
     }
 
     getTestCellDrawerClicked(data){
@@ -80,6 +84,10 @@ class App extends Component {
             this.setState({test_cell_drawer_open: true})
     }
 
+    getCurrentRound(data){
+        this.setState({ current_round: data })
+    }
+
     render(){
         return (
             <ThemeProvider theme={theme}>
@@ -88,14 +96,22 @@ class App extends Component {
                 <Header getStatus={this.getStatus}
                         disableTestCellButton={this.state.disable_test_cell_button}
                         getTestCellDrawerClicked={this.getTestCellDrawerClicked}
-
                 />
 
                 <Switch>
-
                     <Route exact path="/load" component={() => <div>Under Construction</div>} />
 
-                    <Route exact path="/charts" component={() => <ChartGrid API_output={this.state.api_data} />} />
+                    { this.state.api_data ?
+                        <Route exact path="/charts" component={() =>
+                                [
+                                    <ChartGrid
+                                        API_output={this.state.api_data}
+                                        num_rounds={this.state.num_rounds}
+                                    />
+                                ]
+                            }
+                         /> : null
+                     }
 
                     { this.state.status !== 'data collected' ?
                         <Route exact path="/create" component={() =>
@@ -111,14 +127,32 @@ class App extends Component {
                 </Switch>
             </BrowserRouter>
 
-            {!this.state.api_data && this.state.status === 'data collected' ?
+            {this.state.api_progress !==0 ?
               <ProgressBarAPI current_progress_value={this.state.api_progress}/> : null
             }
 
             {this.state.status === 'data collected' ?
-                <APIFetch getAPIData={this.getAPIData} getAPIProgress={this.getAPIProgress} name={'Submit'}
-                          test_cell_list={this.state.test_cells} num_rounds={this.state.num_rounds}
-                          num_recipients={this.state.num_recipients} />
+                <APIFetch
+                         getAPIData={this.getAPIData}
+                         getAPIProgress={this.getAPIProgress}
+                         name={'Submit'}
+                         test_cell_list={this.state.test_cells}
+                         num_rounds={this.state.num_rounds}
+                         num_recipients={this.state.num_recipients}
+                         getStatus={this.getStatus}/>
+                :null
+            }
+
+            {this.state.status === 'modify test cells' ?
+                <APIFetch
+                         getAPIData={this.getAPIData}
+                         getAPIProgress={this.getAPIProgress}
+                         name={'Fluctuate'}
+                         test_cell_list={this.state.test_cells}
+                         num_rounds={this.state.num_rounds}
+                         num_recipients={this.state.num_recipients}
+                         current_round={parseInt(localStorage.getItem('current_round'))}
+                         getStatus={this.getStatus} />
                 :null
             }
 
@@ -128,6 +162,8 @@ class App extends Component {
                 getTestCellDrawerClicked={this.getTestCellDrawerClicked}
                 testCells={this.state.test_cells}
                 getTestCells={this.getTestCells}
+                getStatus={this.getStatus}
+                api_data={this.state.api_data}
                />:null
             }
 

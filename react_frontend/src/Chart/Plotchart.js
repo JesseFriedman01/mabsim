@@ -13,8 +13,8 @@ class PlotChart extends Component {
         this.state = {
             chart_width: this.props.width,
             chart_height: this.props.height,
-            current_round: this.props.current_round,
-            num_rounds: this.props.num_rounds,
+            current_round: parseInt(this.props.current_round),
+            num_rounds: parseInt(this.props.num_rounds),
             API_output: this.props.API_output,
             data_to_plot: this.props.data_to_plot,
             chart_title: this.props.chart_title,
@@ -24,13 +24,7 @@ class PlotChart extends Component {
         };
     }
 
-    componentDidMount(){
-        console.log(this.state.height)
-
-    }
-
     componentDidUpdate(prevProps) {
-
       if(prevProps.current_round !== this.props.current_round)
         this.setState({current_round: this.props.current_round});
 
@@ -42,9 +36,8 @@ class PlotChart extends Component {
     }
 
     createPlots(){
-
         var plots = [];
-        const x_axis_vals = [...Array(100).keys()]
+        const x_axis_vals = [...Array(this.state.num_rounds).keys()]
         for (var key in this.state.API_output){
             if (this.state.slice_y_axis === false)
                 var y_axis_vals = this.state.API_output[key][this.state.data_to_plot][this.state.current_round]
@@ -65,30 +58,32 @@ class PlotChart extends Component {
 
     render(){
         return (
-           <Box >
-           <Plot
-            data={ this.createPlots() }
+           <Box>
+               <Plot
+                data={ this.createPlots() }
 
-            layout={
-                    {
-                     plot_bgcolor:"#ffffff",
-                     paper_bgcolor:"#d1d1d1",
-                     width: this.state.chart_width,
-                     height: this.state.chart_height,
-                     title: this.state.chart_title,
-                     xaxis:{
-                            title: this.state.x_axis_title,
-                            range:[0, parseInt(this.state.num_rounds)-1],
-                            },
-                     yaxis:{
-                            title:this.state.y_axis_title,
-                           },
-                     margin:{ r:200, t:50, b:60}
-                      }
-                    }
-                style={{'margin': "0px"}}
+                layout={
+                        {
+                         plot_bgcolor:"#ffffff",
+                         paper_bgcolor:"#e3e3e3",
+                         width: this.state.chart_width,
+                         height: this.state.chart_height,
+                         title: this.state.chart_title,
+                         xaxis:{
+                                title: this.state.x_axis_title,
+                                range:[0, parseInt(this.state.num_rounds)-1],
+                                },
+                         yaxis:{
+                                title:this.state.y_axis_title,
+                               },
+                         margin:{ l:60, r:190, t:50, b:60},
+                         legend: {x: 1.01}
+                          }
 
-            />
+                        }
+                    style={{'margin': "0px"}}
+
+                />
             </Box>
         )
     }

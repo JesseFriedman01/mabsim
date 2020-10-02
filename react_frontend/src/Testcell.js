@@ -19,7 +19,7 @@ class TestCell extends Component {
 
         this.state = {
             list: this.props.testCells,
-            API_output: this.props.API_output,
+            api_data: this.props.api_data,
             current_round: this.props.current_round,
             unique_cell_id: this.props.cell_id,
             auto_allocation: this.props.auto_allocation,
@@ -31,6 +31,7 @@ class TestCell extends Component {
         this.autoAllocatePercentages = this.autoAllocatePercentages.bind(this);
         this.allocationCheckboxChange = this.allocationCheckboxChange.bind(this);
         this.handleChangeTestCell = this.handleChangeTestCell.bind(this);
+        this.getOpenRate = this.getOpenRate.bind(this);
 
         if (this.props.display_type === 'create'){
             this.table_type = "a dense table"
@@ -56,25 +57,12 @@ class TestCell extends Component {
         }
     }
 
-//    componentDidMount(){
-//        this.setState({list:this.props.testCells})
-//        this.
-////        this.props.getData(this.state.list)
-//    }
-
     componentDidUpdate(prevProps) {
-//        if (prevProps.API_output !== this.props.API_output){
-//            this.setState({API_output: this.props.API_output});
-//            this.updateTestCell()
-//        }
-//        if (prevProps.current_round !== this.props.current_round){
-//            this.setState({current_round: this.props.current_round});
-//            this.updateTestCell()
-//        }
+      if(prevProps.api_data !== this.props.api_data)
+        this.setState({api_data: this.props.api_data});
     }
 
     autoAllocatePercentages(list){
-        console.log('here', list.length)
         const percentagePerTestCell = Number((100/list.length).toFixed(2))
         for (var key in list){
             list[key]['percent_allocation'] = percentagePerTestCell
@@ -134,7 +122,6 @@ class TestCell extends Component {
             if (event.target.name === "open_rate")
                 target_value = parseInt(target_value)
 
-
             prev_list.filter(getElem)[0][event.target.name] = target_value
 
        if (this.props.auto_update === "true"){
@@ -142,6 +129,7 @@ class TestCell extends Component {
             this.props.getData({test_cells:prev_list, cell_id:this.state.unique_cell_id, isAutoAllocate: this.state.auto_allocation})
         }
         else{
+            this.setState({ list: prev_list })
             this.props.getTestCellDataFromDrawer(prev_list)
         }
    }
@@ -151,6 +139,16 @@ class TestCell extends Component {
             this.autoAllocatePercentages(this.state.list)
         this.setState({ auto_allocation: event.target.checked })
         this.props.getData({test_cells:this.state.list, cell_id:this.state.unique_cell_id, isAutoAllocate: event.target.checked})
+   }
+
+   getOpenRate(test_cell){
+        if (this.state.api_data){
+            let test_cell_id = test_cell['id']
+            let open_rate_in_current_round = this.state.api_data[test_cell_id]['actual_open_rate'][localStorage.getItem('current_round')]
+            return open_rate_in_current_round * 100
+        }
+
+        return test_cell.open_rate
    }
 
     render(){
@@ -217,8 +215,7 @@ class TestCell extends Component {
                                 label="Open rate"
                                 id={item.id}
                                 name="open_rate"
-                                defaultValue={item.open_rate}
-//                                value={item.open_rate}
+                                defaultValue={this.getOpenRate(item)}
                                 onChange={this.handleChangeTestCell} />
                         </TableCell>
                         <TableCell>

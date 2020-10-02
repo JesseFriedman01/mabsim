@@ -142,8 +142,10 @@ export default function HorizontalLinearStepper(props) {
 
   const handleNext = () => {
     if (validateData() === 'no errors'){
-        if (activeStep === steps.length - 1)
+        if (activeStep === steps.length - 1){
             submitData()
+            localStorage.setItem('current_round', parseInt(numRounds)-1);
+        }
         setActiveStep((prevActiveStep) => prevActiveStep + 1);
      }
    }

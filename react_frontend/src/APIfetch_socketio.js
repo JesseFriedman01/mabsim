@@ -21,7 +21,7 @@ class APIFetch extends Component {
         this.getData = this.getData.bind(this);
     }
 
-//    componentDidUpdate(prevProps) {
+    componentDidUpdate(prevProps) {
 //        if(prevProps.num_rounds !== this.props.num_rounds)
 //            this.setState({num_rounds: this.props.num_rounds});
 //        if(prevProps.num_recipients !== this.props.num_recipients)
@@ -30,7 +30,7 @@ class APIFetch extends Component {
 //            this.setState({test_cell_list: this.props.test_cell_list});
 //        if(prevProps.current_round !== this.props.current_round)
 //            this.setState({current_round: this.props.current_round});
-//    }
+    }
 
     createJSONforPost(){
         let json_post = {};
@@ -69,7 +69,7 @@ class APIFetch extends Component {
 
         }
         return(
-            null
+            <div></div>
         )
     }
 }

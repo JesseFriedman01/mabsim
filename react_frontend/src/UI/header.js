@@ -10,6 +10,7 @@ import MenuIcon from '@material-ui/icons/Menu';
 import SettingsIcon from '@material-ui/icons/Settings';
 import {Link} from "react-router-dom"
 import Box from '@material-ui/core/Box';
+import Button from '@material-ui/core/Button';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -29,6 +30,8 @@ export default function Header(props) {
   const [anchorEl, setAnchorEl] = React.useState(null);
   const open = Boolean(anchorEl);
   const [disableTestCellButton, setDisableTestCellButton] = React.useState(props.disableTestCellButton)
+  const [testCellButtonBackgroundColor, setTestCellButtonBackgroundColor] = React.useState(null)
+  const [testCellButtonFontColor, setTestCellButtonFontColor] = React.useState(null)
 //  const [drawerOpened, setDrawerOpened] = React.useState(false)
 
   const handleMenu = (event) => {
@@ -65,15 +68,13 @@ export default function Header(props) {
             <Typography variant="h6" className={classes.title}>
                 MAB Simulator
             </Typography>
-            <IconButton
-                edge="start"
-                aria-haspopup="true"
-                color="inherit"
-                disabled={props.disableTestCellButton}
-                onClick={toggleDrawer()}
+            <Button variant="contained"
+                    disabled={props.disableTestCellButton}
+                    onClick={toggleDrawer()}
             >
-                <SettingsIcon />
-            </IconButton>
+              Modify Open Rates
+            </Button>
+
             <Menu
                 id="menu-appbar"
                 anchorEl={anchorEl}

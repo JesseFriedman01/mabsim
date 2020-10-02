@@ -24,13 +24,32 @@ class ProgressBarAPI extends Component {
         if (this.state.current_progress_value === null)
             return null
 
+      const div = {
+        display: 'flex',
+        justifyContent:'center',
+        alignItems:'center',
+        height: '100vh'
+      }
+
+      const modalRoot  = {
+            background: 'blue'
+      }
+
         return (
-                <Modal open={true}>
-                    <div style={{justifyContent: 'center',  alignItems: 'center' }}>
+                <Modal
+                    open={true}
+                    BackdropProps= {{
+                         classes: {
+                          root: {modalRoot }
+                       }
+                    }}>
+                    <div style={div}>
                         <ProgressBar
                             progress={this.state.current_progress_value}
                             radius={200}
                             strokeWidth={30}
+                            pointerRadius={10}
+                            pointerStrokeWidth={0}
                         >
                            <div class="indicator" >{this.state.current_progress_value}%</div>
                         </ProgressBar>

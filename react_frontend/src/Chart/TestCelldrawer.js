@@ -55,36 +55,53 @@ export default function TestCellDrawer(props) {
 
     const [testCellsOriginal, setTestCellsOriginal] = React.useState(props.testCells)
     const [testCellsFromDrawer, setTestCellsFromDrawer] = React.useState(0)
+    const [validationErrorMsg, setValidationErrorMsg] = React.useState('')
+    const [apiData, setApiData] = React.useState(props.api_data)
 
     useEffect(() => {
       setTestCellsOriginal(props.testCells);
     }, [props.testCells]);
+
+    useEffect(() => {
+      setApiData(apiData);
+    }, [props.api_data]);
 
     const getTestCellDataFromDrawer = (data) => {
         setTestCellsFromDrawer(data)
     }
 
     const buttonCancelClick = () => {
+        setValidationErrorMsg('')
         props.getTestCellDrawerClicked(true)
         setTestCellsOriginal(testCellsOriginal)
     }
 
-    const buttonSubmitClick = () => {
-//        props.getTestCellDrawerClicked(true)
-//        props.getTestCells(testCellsFromDrawer)
-//        console.log(data)
-//        setTestCells(data)
-    }
+    const validateTestCellChanges = () => {
+        let error_msg = 'You did not change any open rates.'
 
-    const clickAway = () => {
-        console.log('here')
-        props.getTestCellDrawerClicked(true)
+        for (var key in testCellsFromDrawer){
+            if (testCellsFromDrawer[key]['open_rate'] !== testCellsOriginal[key]['open_rate'])
+                return null
+        }
+
+        return error_msg
+    }
+    const buttonSubmitClick = () => {
+        const errors = validateTestCellChanges()
+        if (!errors){
+            setTestCellsFromDrawer(testCellsFromDrawer)
+            setTestCellsOriginal(testCellsFromDrawer)
+            props.getTestCellDrawerClicked(true)
+            props.getTestCells(testCellsFromDrawer)
+            props.getStatus('modify test cells')
+        }
+        else
+            setValidationErrorMsg(errors)
     }
 
     const classes = useStyles();
 
     return (
-
               <Drawer
               classes={{ paper: classes.paper }}
                 anchor="bottom"
@@ -92,14 +109,20 @@ export default function TestCellDrawer(props) {
                 onClose={props.shouldBeOpen}
               >
               <Container style={{padding:"20px", marginBottom:"20px", marginTop:"20px"}} >
-              <h2>Modify open rate(s):</h2>
-                 <TestCell
-                    display_type='modify'
-                    testCells={testCellsOriginal}
-                    getTestCellDataFromDrawer={getTestCellDataFromDrawer}
-                    auto_update={false}
-                  />
+                 <Box boxShadow={1}>
+                     <h2> Modify open rate(s):</h2>
+                     <TestCell
+                        display_type='modify'
+                        testCells={testCellsOriginal}
+                        getTestCellDataFromDrawer={getTestCellDataFromDrawer}
+                        api_data={props.api_data}
+                        auto_update={false}
+                      />
+                  </Box>
+
                   <hr style={{marginTop: '20px'}}/>
+                  <div style={{color:'red'}}>{validationErrorMsg}</div>
+                  <div>{localStorage.getItem('current_round')}</div>
                  <Button variant="contained" onClick={buttonSubmitClick} className={classes.submitButtonStyle}>Submit</Button>
                  <Button variant="contained" onClick={buttonCancelClick} className={classes.cancelButtonStyle}>Close</Button>
                </Container>
