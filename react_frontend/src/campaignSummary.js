@@ -51,7 +51,7 @@ class CampaignSummary extends Component {
 
                     <TableBody>
                          {this.props.testCells.map( item =>
-                            <TableRow>
+                            <TableRow key={item.id.toString()}>
                                 <TableCell style={cellStyle}>{item.name}</TableCell>
                                 <TableCell style={cellStyle}>{item.open_rate}</TableCell>
                                 <TableCell style={cellStyle}>{item.percent_allocation}</TableCell>

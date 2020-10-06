@@ -7,8 +7,6 @@ import 'react-resizable/css/styles.css'
 import Box from '@material-ui/core/Box';
 import InputSlider from './Slider';
 
-const test_api_output = {"0": {"name": "test_cell_1", "allocation_percentage_history": [0.5, 0.2, 0.4, 0.1, 0.0, 0.0, 0.1, 0.1, 0.0, 0.0]}, "1": {"name": "test_cell_2", "allocation_percentage_history": [0.5, 0.8, 0.6, 0.9, 1.0, 1.0, 0.9, 0.9, 1.0, 1.0]}}
-
 const num_cols = 3
 const chart_margin = 30
 
@@ -96,8 +94,7 @@ class ChartGrid extends React.Component {
             current_round: localStorage.getItem('current_round'),
             num_rounds: this.props.num_rounds,
             API_output: this.props.API_output,
-//            API_output: test_api_output,
-
+            pause_slider: this.props.pause_slider
         };
 
         this.onResizeChange = this.onResizeChange.bind(this);
@@ -128,6 +125,11 @@ class ChartGrid extends React.Component {
       if(prevProps.num_rounds !== this.props.num_rounds){
         this.setState({num_rounds: this.props.num_rounds});
       }
+
+      if(prevProps.pause_slider !== this.props.pause_slider){
+        this.setState({pause_slider: this.props.pause_slider});
+      }
+
     }
 
      onResizeChange(new_layout: LayoutItem, resized_chart_old_specs: LayoutItem)  {
@@ -142,13 +144,10 @@ class ChartGrid extends React.Component {
         new_layout = JSON.stringify(new_layout)
 
         for (var key in layout_history){
-
             let existing_layout = JSON.stringify(layout_history[key])
-
             if (new_layout === existing_layout)
                 return false
         }
-
         return true
     }
 
@@ -171,9 +170,9 @@ class ChartGrid extends React.Component {
                     getCurrentRound={this.getCurrentRound}
                     current_round={this.state.current_round}
                     num_rounds={this.state.num_rounds}
+                    pause_slider={this.state.pause_slider}
                 />
-
-                <GridLayout
+                 <GridLayout
                     className="layout"
                     layout={this.state.layout}
                     cols={num_cols}

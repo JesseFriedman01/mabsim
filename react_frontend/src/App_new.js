@@ -11,6 +11,8 @@ import PlotChart from './Chart/Plotchart';
 import ProgressBarAPI from './Progressbar';
 import TestCellDrawer from './Chart/TestCelldrawer';
 import ChartGrid  from './Chart/Grid';
+import APIFetch_test from './API_fetch_function';
+import PlayPause from './Chart/Playpause'
 
 class App extends Component {
     constructor(props) {
@@ -27,7 +29,8 @@ class App extends Component {
             api_progress: null,
             disable_test_cell_button: true,
             test_cell_drawer_button_clicked: null,
-            test_cell_drawer_open: false
+            test_cell_drawer_open: false,
+            pause_slider: false
         };
 
         this.getCampaignName = this.getCampaignName.bind(this);
@@ -62,9 +65,9 @@ class App extends Component {
     }
 
     getAPIData(data){
-        var d = new Date();
-        var n = d.getTime();
-        console.log(data, n)
+//        var d = new Date();
+//        var n = d.getTime();
+//        console.log(data, n)
         this.setState({ api_data: data })
         this.setState({ disable_test_cell_button: false })
         this.setState({ status: 'idle' })
@@ -78,10 +81,18 @@ class App extends Component {
 
     getTestCellDrawerClicked(data){
         this.setState({ test_cell_drawer_button_clicked: data })
-        if (this.state.test_cell_drawer_open === true)
+        this.setState({ pause_slider: true })
+        if (this.state.test_cell_drawer_open === true){
             this.setState({test_cell_drawer_open: false})
-        else
+//            console.log('closed')
+//            this.setState({ pause_slider: false })
+        }
+        else{
             this.setState({test_cell_drawer_open: true})
+//            console.log('open')
+//            this.setState({ pause_slider: true })
+
+        }
     }
 
     getCurrentRound(data){
@@ -98,7 +109,7 @@ class App extends Component {
                         getTestCellDrawerClicked={this.getTestCellDrawerClicked}
                 />
 
-                <Switch>
+               <Switch>
                     <Route exact path="/load" component={() => <div>Under Construction</div>} />
 
                     { this.state.api_data ?
@@ -107,6 +118,7 @@ class App extends Component {
                                     <ChartGrid
                                         API_output={this.state.api_data}
                                         num_rounds={this.state.num_rounds}
+                                        pause_slider={this.state.pause_slider}
                                     />
                                 ]
                             }
@@ -127,11 +139,11 @@ class App extends Component {
                 </Switch>
             </BrowserRouter>
 
-            {this.state.api_progress !==0 ?
+            { this.state.api_progress !==0 ?
               <ProgressBarAPI current_progress_value={this.state.api_progress}/> : null
             }
 
-            {this.state.status === 'data collected' ?
+            { this.state.status === 'data collected' ?
                 <APIFetch
                          getAPIData={this.getAPIData}
                          getAPIProgress={this.getAPIProgress}
@@ -143,7 +155,7 @@ class App extends Component {
                 :null
             }
 
-            {this.state.status === 'modify test cells' ?
+            { this.state.status === 'modify test cells' ?
                 <APIFetch
                          getAPIData={this.getAPIData}
                          getAPIProgress={this.getAPIProgress}
@@ -156,7 +168,7 @@ class App extends Component {
                 :null
             }
 
-            {this.state.test_cell_drawer_button_clicked === true ?
+            { this.state.test_cell_drawer_button_clicked === true ?
                <TestCellDrawer
                 shouldBeOpen ={this.state.test_cell_drawer_open}
                 getTestCellDrawerClicked={this.getTestCellDrawerClicked}

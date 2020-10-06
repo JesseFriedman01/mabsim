@@ -7,6 +7,7 @@ import Input from "@material-ui/core/Input";
 import SettingsEthernetIcon from "@material-ui/icons/SettingsEthernet";
 import Card from '@material-ui/core/Card';
 import Box from '@material-ui/core/Box';
+import PlayPause from './Playpause'
 
 const useStyles = makeStyles({
   root: {
@@ -31,10 +32,15 @@ const useStyles = makeStyles({
 export default function InputSlider(props) {
   const classes = useStyles();
   const [value, setValue] = React.useState(props.current_round);
+  const [pauseSlider, setPauseSlider] = React.useState(props.pause_slider);
 
   useEffect(() => {
       setValue(props.current_round);
    }, [props.current_round]);
+
+  useEffect(() => {
+      setPauseSlider(props.pauseSlider);
+   }, [props.pauseSlider]);
 
   const handleSliderChange = (event, newValue) => {
   props.getCurrentRound(newValue);
@@ -62,36 +68,42 @@ export default function InputSlider(props) {
 
   return (
         <Card className={classes.root} variant="outlined">
-          <Typography id="input-slider" gutterBottom>
-                <h4>Round Selector</h4>
-          </Typography>
-          <Grid container spacing={2} alignItems="center">
-            <Grid item xs>
-              <Slider
-                value={props.current_round}
-                onChange={handleSliderChange}
-                onChangeCommitted={handleSliderCommit}
-                max={props.num_rounds - 1}
-                aria-labelledby="input-slider"
+              <Typography id="input-slider" gutterBottom>
+                    <h4>Round Selector</h4>
+              </Typography>
+              <Grid container spacing={2} alignItems="center">
+                <Grid item xs>
+                  <Slider
+                    value={props.current_round}
+                    onChange={handleSliderChange}
+                    onChangeCommitted={handleSliderCommit}
+                    max={props.num_rounds - 1}
+                    aria-labelledby="input-slider"
+                  />
+                </Grid>
+                <Grid item>
+                  <Input
+                    className={classes.input}
+                    value={value}
+                    margin="dense"
+                    onChange={handleInputChange}
+                    onBlur={handleBlur}
+                    inputProps={{
+                      step: 1,
+                      min: 0,
+                      max: props.num_rounds - 1,
+                      type: "number",
+                      "aria-labelledby": "input-slider"
+                    }}
+                  />
+                </Grid>
+              </Grid>
+              <PlayPause
+                setCurrentRound={props.getCurrentRound}
+                current_round={parseInt(value)}
+                num_rounds={props.num_rounds - 1}
+                pause_slider={pauseSlider}
               />
-            </Grid>
-            <Grid item>
-              <Input
-                className={classes.input}
-                value={value}
-                margin="dense"
-                onChange={handleInputChange}
-                onBlur={handleBlur}
-                inputProps={{
-                  step: 1,
-                  min: 0,
-                  max: props.num_rounds - 1,
-                  type: "number",
-                  "aria-labelledby": "input-slider"
-                }}
-              />
-            </Grid>
-          </Grid>
           </Card>
   );
 }

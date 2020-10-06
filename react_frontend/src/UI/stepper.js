@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import Stepper from '@material-ui/core/Stepper';
 import Step from '@material-ui/core/Step';
@@ -12,7 +12,7 @@ import AppBar from '@material-ui/core/AppBar';
 import TextField from '@material-ui/core/TextField';
 import TestCell from '../Testcell'
 import ErrorIcon from '@material-ui/icons/Error';
-import CampaignSummary from '../campaignSummary'
+import CampaignSummary from '../campaignSummary';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -85,6 +85,10 @@ export default function HorizontalLinearStepper(props) {
   const [errorMsg, setErrorMsg] = React.useState(null);
   const [testCellInterval, setTestCellInterval] = React.useState(2)
   const [isAutoAllocate, setIsAutoAllocate] = React.useState(true)
+
+//  useEffect(() => {
+//    console.log('stepper mounted')
+//  }, [])
 
   const isStepOptional = (step) => {
     return null;

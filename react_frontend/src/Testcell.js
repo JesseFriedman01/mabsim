@@ -32,6 +32,7 @@ class TestCell extends Component {
         this.allocationCheckboxChange = this.allocationCheckboxChange.bind(this);
         this.handleChangeTestCell = this.handleChangeTestCell.bind(this);
         this.getOpenRate = this.getOpenRate.bind(this);
+        this.getPercentAllocation = this.getPercentAllocation.bind(this);
 
         if (this.props.display_type === 'create'){
             this.table_type = "a dense table"
@@ -147,17 +148,22 @@ class TestCell extends Component {
             let open_rate_in_current_round = this.state.api_data[test_cell_id]['actual_open_rate'][localStorage.getItem('current_round')]
             return open_rate_in_current_round * 100
         }
-
         return test_cell.open_rate
+   }
+
+   getPercentAllocation(test_cell){
+        if (this.state.api_data){
+            let test_cell_id = test_cell['id']
+            let percent_allocation_in_current_round = this.state.api_data[test_cell_id]['allocation_percentage_history'][localStorage.getItem('current_round')]
+            return percent_allocation_in_current_round * 100
+        }
+        return test_cell.percent_allocation
    }
 
     render(){
       const addButtonStyle = {
         backgroundColor: '#039112',
         color: 'white',
-
-//        marginLeft:'10%',
-//        marginRight:'10%',
         marginTop: '20px',
         marginBottom: '10px'
       };
@@ -172,25 +178,17 @@ class TestCell extends Component {
       };
 
       const checkbox = {
-//        marginLeft:'10%',
-//        marginRight:'10%',
         marginTop: '20px',
         marginBottom: '10px',
         float:"right"
       };
 
-      const table = {
-//        width: '80%',
-//        marginLeft:'10%',
-//        marginRight:'10%',
-      }
-
     return(
             <div>
-            <TableContainer style={table} component={Paper}>
+            <TableContainer component={Paper}>
                 <Table aria-label={this.table_type}>
                     {this.state.list.map( (item, i) =>
-                      <TableRow key={item.id} style={{backgroundColor:"#white"}}>
+                      <TableRow key={item.id.toString()} style={{backgroundColor:"#white"}}>
                         <TableCell>
                             <TextField
                                inputProps={{
@@ -229,8 +227,8 @@ class TestCell extends Component {
                                 label="Pct Allocation"
                                 id={item.id}
                                 name="percent_allocation"
-                                defaultValue={item.percent_allocation}
-                                value={item.percent_allocation}
+                                defaultValue={this.getPercentAllocation(item)}
+                                value={this.getPercentAllocation(item)}
                                 onChange={this.handleChangeTestCell} />
                         </TableCell>
                         { this.props.display_type === 'create' ?
