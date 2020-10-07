@@ -1,6 +1,5 @@
-import React, { Component } from 'react';
+import React from 'react';
 import GridLayout from 'react-grid-layout';
-import { Responsive, WidthProvider } from 'react-grid-layout';
 import PlotChart from './Plotchart';
 import 'react-grid-layout/css/styles.css'
 import 'react-resizable/css/styles.css'
@@ -13,8 +12,6 @@ const chart_margin = 30
 const total_width = window.innerWidth - 20
 const chart_width = window.innerWidth/num_cols
 const chart_height = chart_width *.4
-
-const ResponsiveReactGridLayout = WidthProvider(Responsive);
 
 const chart_specs = [
     {

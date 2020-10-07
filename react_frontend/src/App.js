@@ -1,145 +1,179 @@
 import React, { Component } from 'react';
-import './App.css';
-import TestCell from './Testcell';
+import Header from './UI/header'
+import HorizontalLinearStepper from './UI/stepper'
+import {ThemeProvider } from '@material-ui/styles';
+import theme from './UI/theme'
+import { makeStyles } from '@material-ui/core/styles';
+import { BrowserRouter, Route, Switch, Redirect } from 'react-router-dom';
+import CssBaseline from '@material-ui/core/CssBaseline';
 import APIFetch from './APIfetch_socketio';
-import NavButtons from './Chart/Navbuttons';
-import ChartSlider from './Chart/Slider';
 import PlotChart from './Chart/Plotchart';
 import ProgressBarAPI from './Progressbar';
+import TestCellDrawer from './Chart/TestCelldrawer';
+import ChartGrid  from './Chart/Grid';
 
 class App extends Component {
-  constructor(props) {
-    super(props);
+    constructor(props) {
+        super(props);
 
-    this.state = {
-      num_rounds: 100,
-      num_recipients: 100,
-      test_cell_list:null,
-      unique_cell_id: 2,
-      API_progress: null,
-      API_output: null,
-      slider_value: 2,
-      current_round: 1
-    };
+        this.state = {
+            campaign_name: null,
+            num_recipients: null,
+            num_rounds: null,
+            current_round: null,
+            test_cells: null,
+            status: null,
+            api_data: null,
+            api_progress: null,
+            disable_test_cell_button: true,
+            test_cell_drawer_button_clicked: null,
+            test_cell_drawer_open: false,
+            pause_slider: false
+        };
 
-    this.getAPIData = this.getAPIData.bind(this);
-    this.getAPIProgress = this.getAPIProgress.bind(this);
-    this.getTestCellData = this.getTestCellData.bind(this);
-    this.getCurrentRoundFromNavButton = this.getCurrentRoundFromNavButton.bind(this);
-    this.getCurrentRoundFromSlider = this.getCurrentRoundFromSlider.bind(this);
-    this.handleChangeRounds = this.handleChangeRounds.bind(this);
-    this.handleChangeRecipients = this.handleChangeRecipients.bind(this);
-  }
+        this.getCampaignName = this.getCampaignName.bind(this);
+        this.getNumRecipients = this.getNumRecipients.bind(this);
+        this.getNumRounds = this.getNumRounds.bind(this);
+        this.getTestCells = this.getTestCells.bind(this);
+        this.getStatus = this.getStatus.bind(this);
+        this.getAPIData = this.getAPIData.bind(this);
+        this.getAPIProgress = this.getAPIProgress.bind(this);
+        this.getTestCellDrawerClicked = this.getTestCellDrawerClicked.bind(this);
+        this.getCurrentRound = this.getCurrentRound.bind(this);
+    }
 
-  handleChangeRounds(event){
-    this.setState({num_rounds:event.target.value})
-  }
+    getCampaignName(data){
+        this.setState({ campaign_name: data })
+    }
 
-  handleChangeRecipients(event){
-    this.setState({num_recipients:event.target.value})
-  }
+    getNumRecipients(data){
+        this.setState({ num_recipients: data })
+    }
 
-  getTestCellData(data){
-    this.setState({test_cell_list:data})
-  }
+    getNumRounds(data){
+        this.setState({ num_rounds: data })
+    }
 
-  getAPIData(data){
-//    this.setState({ API_progress: 0 });
-    this.setState({ API_output: data });
-    this.setState({ current_round: this.state.num_rounds-1});
-//    this.setState({ API_progress: 0 });
-//    this.setState({ API_progress: 0 });
-  }
+    getTestCells(data){
+        this.setState({ test_cells: data })
+    }
 
-  getAPIProgress(data){
-//    this.setState({ API_progress: 0 });
-    this.setState({ API_progress: data })
-  }
+    getStatus(data){
+        this.setState({ status: data })
+    }
 
- getCurrentRoundFromNavButton(data){
-    this.setState({ current_round: data })
- }
+    getAPIData(data){
+//        var d = new Date();
+//        var n = d.getTime();
+//        console.log(data, n)
+        this.setState({ api_data: data })
+        this.setState({ disable_test_cell_button: false })
+        this.setState({ status: 'idle' })
+    }
 
- getCurrentRoundFromSlider(data){
-    this.setState({ current_round: data })
- }
+    getAPIProgress(data){
+        this.setState({ api_progress: data })
+        if (data===100)
+            this.setState({ api_progress: 0 })
+    }
 
+    getTestCellDrawerClicked(data){
+        this.setState({ test_cell_drawer_button_clicked: data })
+        this.setState({ pause_slider: true })
+        if (this.state.test_cell_drawer_open === true)
+            this.setState({test_cell_drawer_open: false})
+        else
+            this.setState({test_cell_drawer_open: true})
+    }
 
-  render() {
-    return (
-      <div className="App">
-      <br></br>
-        Num members per round:
-        <input type="text" name="num_recipients" defaultValue={this.state.num_recipients} onChange={this.handleChangeRecipients}></input>
-        <br></br>
-        Num rounds:
-        <input type="text" name="num_rounds" defaultValue={this.state.num_rounds} onChange={this.handleChangeRounds}></input>
-        <br></br> <br></br>
-        <TestCell getData={this.getTestCellData} API_output={this.state.API_output} current_round={this.state.current_round}/>
-        <br></br> <br></br>
-        { this.state.test_cell_list ?
-            [
-                <APIFetch getAPIData={this.getAPIData} getAPIProgress={this.getAPIProgress} name={'Submit'} test_cell_list={this.state.test_cell_list} num_rounds={this.state.num_rounds}
-                           num_recipients={this.state.num_recipients} />,
+    getCurrentRound(data){
+        this.setState({ current_round: data })
+    }
 
-                <APIFetch getAPIData={this.getAPIData} getAPIProgress={this.getAPIProgress} name={'Fluctuate'} test_cell_list={this.state.test_cell_list} num_rounds={this.state.num_rounds}
-                           num_recipients={this.state.num_recipients} current_round={this.state.current_round}/>
-            ]
-            :null
-        }
-        <br></br> <br></br>
-        {this.state.API_output ?
-                        [
-                            [
-                                <NavButtons getData={this.getCurrentRoundFromNavButton} name="First" value="First"
-                                    current_round={this.state.current_round} num_rounds={this.state.num_rounds}/>,
+    render(){
+        return (
+            <ThemeProvider theme={theme}>
+            <CssBaseline />
+            <BrowserRouter>
+                <Header getStatus={this.getStatus}
+                        disableTestCellButton={this.state.disable_test_cell_button}
+                        getTestCellDrawerClicked={this.getTestCellDrawerClicked}
+                />
 
-                                <NavButtons getData={this.getCurrentRoundFromNavButton} name="Previous" increment="-1"
-                                    current_round={this.state.current_round} num_rounds={this.state.num_rounds}/>,
+               <Switch>
+                    <Route exact path="/load" component={() => <div>Under Construction</div>} />
 
-                                <NavButtons getData={this.getCurrentRoundFromNavButton} name="Next" increment="1"
-                                    current_round={this.state.current_round} num_rounds={this.state.num_rounds}/>,
+                    { this.state.api_data ?
+                        <Route exact path="/charts" component={() =>
+                                [
+                                    <ChartGrid
+                                        API_output={this.state.api_data}
+                                        num_rounds={this.state.num_rounds}
+                                        pause_slider={this.state.pause_slider}
+                                    />
+                                ]
+                            }
+                         /> : null
+                     }
 
-                                <NavButtons getData={this.getCurrentRoundFromNavButton} name="Last" value="Last"
-                                    current_round={this.state.current_round} num_rounds={this.state.num_rounds}/>
-                            ],
+                    { this.state.status !== 'data collected' ?
+                        <Route exact path="/create" component={() =>
+                            <HorizontalLinearStepper
+                            getCampaignName={this.getCampaignName}
+                            getNumRecipients={this.getNumRecipients}
+                            getNumRounds={this.getNumRounds}
+                            getTestCells={this.getTestCells}
+                            getStatus={this.getStatus}
+                            />}
+                        /> :<Redirect to='/charts' />
+                    }
+                </Switch>
+            </BrowserRouter>
 
-                            <ChartSlider getData={this.getCurrentRoundFromSlider} current_round={this.state.current_round}
-                                num_rounds={this.state.num_rounds}/>,
+            { this.state.api_progress !==0 ?
+              <ProgressBarAPI current_progress_value={this.state.api_progress}/> : null
+            }
 
-                            [
-                                <PlotChart current_round={this.state.current_round} num_rounds={this.state.num_rounds}
-                                    API_output={this.state.API_output} data_to_plot="allocation_percentage_history"
-                                    chart_title="Test cell selection"
-                                    x_axis_title="Round" y_axis_title="Allocation Percentage"/>,
+            { this.state.status === 'data collected' ?
+                <APIFetch
+                         getAPIData={this.getAPIData}
+                         getAPIProgress={this.getAPIProgress}
+                         name={'Submit'}
+                         test_cell_list={this.state.test_cells}
+                         num_rounds={this.state.num_rounds}
+                         num_recipients={this.state.num_recipients}
+                         getStatus={this.getStatus}/>
+                :null
+            }
 
-                                <PlotChart current_round={this.state.current_round} num_rounds={this.state.num_rounds}
-                                    API_output={this.state.API_output} data_to_plot="actual_open_rate"
-                                    chart_title="Actual open rate"
-                                    x_axis_title="Round" y_axis_title="Open Rate"/>,
+            { this.state.status === 'modify test cells' ?
+                <APIFetch
+                         getAPIData={this.getAPIData}
+                         getAPIProgress={this.getAPIProgress}
+                         name={'Fluctuate'}
+                         test_cell_list={this.state.test_cells}
+                         num_rounds={this.state.num_rounds}
+                         num_recipients={this.state.num_recipients}
+                         current_round={parseInt(localStorage.getItem('current_round'))}
+                         getStatus={this.getStatus} />
+                :null
+            }
 
-                                <PlotChart current_round={this.state.current_round} num_rounds={this.state.num_rounds}
-                                    API_output={this.state.API_output} data_to_plot="estimated_open_rate"
-                                    chart_title="Estimated open rate"
-                                    x_axis_title="Round" y_axis_title="Open Rate"/>,
+            { this.state.test_cell_drawer_button_clicked === true ?
+               <TestCellDrawer
+                shouldBeOpen ={this.state.test_cell_drawer_open}
+                getTestCellDrawerClicked={this.getTestCellDrawerClicked}
+                testCells={this.state.test_cells}
+                getTestCells={this.getTestCells}
+                getStatus={this.getStatus}
+                api_data={this.state.api_data}
+               />:null
+            }
 
-                                <PlotChart current_round={this.state.current_round} num_rounds={this.state.num_rounds}
-                                    API_output={this.state.API_output} data_to_plot="beta_distribution"
-                                    chart_title="Beta distribution"
-                                    slice_y_axis="False"
-                                 />,
-
-                                <PlotChart current_round={this.state.current_round} num_rounds={this.state.num_rounds}
-                                    API_output={this.state.API_output} data_to_plot="allocation_num_members"
-                                    chart_title="Allocation by num members"
-                                 />
-                            ]
-                        ]
-                        : <ProgressBarAPI current_progress_value={this.state.API_progress}/>
-        }
-      </div>
-    );
-  }
+            </ThemeProvider>
+        );
+    }
 }
+
 
 export default App;

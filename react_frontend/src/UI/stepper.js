@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import Stepper from '@material-ui/core/Stepper';
 import Step from '@material-ui/core/Step';
@@ -6,13 +6,11 @@ import StepLabel from '@material-ui/core/StepLabel';
 import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
 import Box from '@material-ui/core/Box';
-import Container from '@material-ui/core/Container';
 import Grid from '@material-ui/core/Grid';
-import AppBar from '@material-ui/core/AppBar';
 import TextField from '@material-ui/core/TextField';
 import TestCell from '../Testcell'
 import ErrorIcon from '@material-ui/icons/Error';
-import CampaignSummary from '../campaignSummary';
+import CampaignSummary from './campaignSummary';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -81,18 +79,9 @@ export default function HorizontalLinearStepper(props) {
   const [numRecipients, setNumRecipients] = React.useState('');
   const [numRounds, setNumRounds] = React.useState('');
   const [testCells, setTestCells] = React.useState(list);
-  const [status, setStatus] = React.useState(0);
   const [errorMsg, setErrorMsg] = React.useState(null);
   const [testCellInterval, setTestCellInterval] = React.useState(2)
   const [isAutoAllocate, setIsAutoAllocate] = React.useState(true)
-
-//  useEffect(() => {
-//    console.log('stepper mounted')
-//  }, [])
-
-  const isStepOptional = (step) => {
-    return null;
-  };
 
   const submitData = () => {
     props.getCampaignName(campaignName)
@@ -157,10 +146,6 @@ export default function HorizontalLinearStepper(props) {
   const handleBack = () => {
     setErrorMsg(null)
     setActiveStep((prevActiveStep) => prevActiveStep - 1);
-  };
-
-  const handleReset = () => {
-    setActiveStep(0);
   };
 
   const getTestCellData = (data) => {

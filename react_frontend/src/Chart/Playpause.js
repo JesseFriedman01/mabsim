@@ -20,7 +20,6 @@ export default function PlayPause(props) {
 
    useEffect(() => {
       setIsActive(!props.pause_slider);
-      console.log('here', props.pause_slider)
   }, [props.pauseSlider]);
 
   useEffect(() => {
