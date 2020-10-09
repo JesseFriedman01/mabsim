@@ -1,13 +1,14 @@
 from flask import Flask, jsonify, request
 from flask_socketio import SocketIO, send, emit
 from random import randrange
-from flask_backend.scripts.utils2 import TestCell, MAB_sim
+from flask_backend.scripts.utils3 import TestCell, MAB_sim, Naive_sim, Best_case_sim, create_random_list
 from threading import Thread
 import json
 import time
+import copy
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'mysecret'
+app.config['SECRET_KEY'] = '_'
 
 socketIo = SocketIO(app, cors_allowed_origins="*")
 
@@ -26,6 +27,13 @@ def createTestCellsList(test_cells_from_json):
                                )
     return test_cells_list
 
+def createDeepCopiesOfTestCells(test_cells, num_copies):
+    deep_copies = []
+    for _ in range(num_copies):
+        deep_copies.append(copy.deepcopy(test_cells))
+    return deep_copies
+
+
 @socketIo.on("new_mab_request")
 def handleMessage(json_request):
 
@@ -37,21 +45,34 @@ def handleMessage(json_request):
         elif key == 'test_cells':
             test_cells = createTestCellsList(value)
 
+    rand_list = create_random_list(num_rounds, num_recipients)
 
-    sim = MAB_sim(test_cells, num_recipients, num_rounds)
+    test_cells_mab, test_cells_naive, test_cells_best_case = createDeepCopiesOfTestCells(test_cells, 3)
 
-    connections[request.sid] = sim
-    print(connections)
+    mab = MAB_sim(test_cells_mab, num_recipients, num_rounds, rand_list)
+    naive = Naive_sim(test_cells_naive, num_recipients, num_rounds, rand_list)
+    best_case = Best_case_sim(test_cells_best_case, num_recipients, num_rounds, rand_list)
 
-    sim.init_mab()
+    connections[request.sid] = {'naive':naive, 'mab':mab, 'best_case': best_case}
+    # print('connections', connections)
 
-    thread = Thread(target=sim.allocate_members)
+    naive.init_naive()
+    naive.run_naive()
+
+    mab.init_mab()
+
+    best_case.run_best_case()
+
+    thread = Thread(target=mab.allocate_members)
     thread.start()
-    while sim.status != 'done':
-        emit('progress', int((connections[request.sid].curr_round/num_rounds) * 100))
+    while mab.status != 'done':
+        emit('progress', int((connections[request.sid]['mab'].curr_round/num_rounds) * 100))
         time.sleep(1)
     emit('progress', 100)
     thread.join()
+
+    # print(naive.output())
+    # print(best_case.output())
 
     # results = json.loads(connections[request.sid].output())
 
@@ -62,14 +83,28 @@ def handleMessage(json_request):
     #     print('dfdf', key)
     # print(connections[request.sid].output())
 
-    emit('new_results', connections[request.sid].output())
+    # results = json.dumps(
+    #            {'naive': connections[request.sid]['naive'].output(),
+    #            'mab': connections[request.sid]['mab'].output(),
+    #            'best_case': connections[request.sid]['best_case'].output()})
+
+    results = json.dumps(
+        {
+            'Summary Data': {'naive': connections[request.sid]['naive'].output()['Summary Data'],
+                             'mab': connections[request.sid]['mab'].output()['Summary Data'],
+                             'best_case': connections[request.sid]['best_case'].output()['Summary Data']},
+
+            'Detailed Data': {'mab': connections[request.sid]['mab'].output()['Test Cell Data']}
+        }
+    )
+
+    print(results)
+
+    emit('new_results', results)
 
 def modifyTestCells(existing_test_cells, test_cells_from_json):
-    # for test_cell in existing_test_cells:
-    #     print(test_cell.id)
     for test_cell_json in test_cells_from_json:
         for test_cell_existing in existing_test_cells:
-            # print(test_cell_json, test_cell_existing)
             if test_cell_json['id'] == test_cell_existing.id:
                 test_cell_existing.open_rate = int(test_cell_json['open_rate'])/100
 
@@ -77,7 +112,10 @@ def modifyTestCells(existing_test_cells, test_cells_from_json):
 
 @socketIo.on("fluctuate_mab_request")
 def handleMessage(json_request):
-    existing_MAB_object = connections[request.sid]
+    print('connections', connections)
+
+    existing_MAB_object = connections[request.sid]['mab']
+
     existing_MAB_object.status = 'running'
     existing_MAB_object.curr_round = json_request['current_round']
     # existing_MAB_object.test_cells = createTestCellsList(json_request['test_cells'])
@@ -87,32 +125,23 @@ def handleMessage(json_request):
     thread = Thread(target=existing_MAB_object.allocate_members)
     thread.start()
     while existing_MAB_object.status != 'done':
-        emit('progress', int((connections[request.sid].curr_round/connections[request.sid].num_rounds) * 100))
+        emit('progress', int((connections[request.sid]['mab'].curr_round/connections[request.sid]['mab'].num_rounds) * 100))
         time.sleep(1)
     emit('progress', 100)
     thread.join()
-    # print(connections[request.sid].output())
 
-    # results = json.loads(connections[request.sid].output())
+    results = json.dumps(
+               {'naive': connections[request.sid]['naive'].output(),
+               'mab': existing_MAB_object.output(),
+               'best_case': connections[request.sid]['best_case'].output()})
 
-    # for key in results:
-    #     print(key,':', results[key]['allocation_percentage_history'])
+    emit('new_results', results)
 
-    emit('new_results', existing_MAB_object.output())
-    # for test_cell in existing_MAB_object.test_cells:
-    #     print(test_cell.open_rate)
-
-
-
-# @socketIo.on("message")
-# def handleMessage(msg):
-#     None
-
-@socketIo.on('disconnect')
-def handleDisconnect():
-    open_connection_object = connections.get(request.sid)
-    if open_connection_object:
-        del(open_connection_object)
+# @socketIo.on('disconnect')
+# def handleDisconnect():
+#     open_connection_object = connections.get(request.sid)
+#     if open_connection_object:
+#         del(open_connection_object)
 
 if __name__ == '__main__':
     socketIo.run(app)

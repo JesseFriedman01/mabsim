@@ -7,8 +7,21 @@ import multiprocessing
 import pprint
 import copy
 
-def calc_if_opened(test_cell_open_rate):
-    return 1 if random.random() <= test_cell_open_rate else 0
+def calc_if_opened(rand_list, current_round, recipient_num, test_cell_open_rate):
+    return 1 if rand_list[current_round][recipient_num] <= test_cell_open_rate else 0
+
+def create_random_list(num_rounds, num_members):
+    random_list = []
+
+    for round in range(num_rounds):
+        round_rand_list = []
+        for member in range(num_members):
+            round_rand_list.append(random.random())
+        random_list.append(round_rand_list)
+
+    return random_list
+
+# rand_list = create_random_list()
 
 class TestCell:
     def __init__(self, name, id, open_rate, percent_allocation, is_holdout=False):
@@ -25,8 +38,46 @@ class TestCell:
         self.estimated_open_rate = []
         self.beta_distribution = []
 
+class Naive_sim():
+    def __init__(self, test_cells, num_recipients, num_rounds, rand_list):
+        self.test_cells = test_cells
+        self.num_recipients = num_recipients
+        self.curr_round = 0
+        self.num_rounds = num_rounds
+        self.status = 'running'
+        self.total_reward = []
+        self.rand_list = rand_list
+
+    def init_naive(self):
+        for test_cell in self.test_cells:
+            test_cell.num_members_allocated = int(self.num_recipients * test_cell.percent_allocation)
+
+    def record_total_reward(self):
+        sum_reward = 0
+        for test_cell in self.test_cells:
+            sum_reward += sum(test_cell.num_opens_history)
+
+        self.total_reward.append(sum_reward)
+
+    def run_naive(self):
+        for i in range(self.curr_round, self.num_rounds):
+            self.curr_round = i
+
+            for test_cell in self.test_cells:
+                opens_in_round = 0
+                for recipient in range(0, test_cell.num_members_allocated):
+                    opens_in_round += calc_if_opened(self.rand_list, self.curr_round, recipient, test_cell.open_rate)
+                test_cell.num_opens_history.append(opens_in_round)
+
+            self.record_total_reward()
+
+    def output(self):
+        results = {}
+        results['Summary Data'] = {'name': 'Base Case', 'total_reward_history': self.total_reward}
+        return results
+
 class MAB_sim():
-    def __init__(self, test_cells, num_recipients, num_rounds):
+    def __init__(self, test_cells, num_recipients, num_rounds, rand_list):
         self.test_cells = test_cells
         self.num_recipients = num_recipients
         self.curr_round = 0
@@ -35,11 +86,12 @@ class MAB_sim():
         self.epsilon = .05
         self.total_recipients = sum(test_cell.percent_allocation for test_cell in self.test_cells) * num_recipients
         self.total_reward = []
+        self.rand_list = rand_list
 
     def calc_num_opens(self):
         for test_cell in self.test_cells:
-            for _ in range(test_cell.num_members_allocated):
-                test_cell.num_opens += calc_if_opened(test_cell.open_rate)
+            for recipient in range(test_cell.num_members_allocated):
+                test_cell.num_opens += calc_if_opened(self.rand_list, self.curr_round, recipient, test_cell.open_rate)
 
             test_cell.num_opens_history[self.curr_round] = test_cell.num_opens
 
@@ -148,53 +200,22 @@ class MAB_sim():
                                             # 'num_opens_history': test_cell.num_opens_history
                                             }
 
-        results['MAB Summary Data'] = {'Total Reward': {'name': 'Total Reward', 'total_reward_history': self.total_reward}}
-        results['MAB Test Cell Data'] = test_cell_dict
+        results['Summary Data'] = {'name': 'MAB', 'total_reward_history': self.total_reward}
+        results['Test Cell Data'] = test_cell_dict
 
 
-        return json.dumps(results)
-
-class Naive_sim():
-    def __init__(self, test_cells, num_recipients, num_rounds):
-        self.test_cells = test_cells
-        self.num_recipients = num_recipients
-        self.curr_round = 0
-        self.num_rounds = num_rounds
-        self.status = 'running'
-        self.total_reward = []
-
-    def init_naive(self):
-        for test_cell in self.test_cells:
-            test_cell.num_members_allocated = int(self.num_recipients * test_cell.percent_allocation)
-
-    def record_total_reward(self):
-        sum_reward = 0
-        for test_cell in self.test_cells:
-            sum_reward += sum(test_cell.num_opens_history)
-
-        self.total_reward.append(sum_reward)
-
-    def run_naive(self):
-        for i in range(self.curr_round, self.num_rounds):
-            self.curr_round = i
-
-            for test_cell in self.test_cells:
-                opens_in_round = 0
-                for recipient in range(0, test_cell.num_members_allocated):
-                    opens_in_round += calc_if_opened(test_cell.open_rate)
-                test_cell.num_opens_history.append(opens_in_round)
-
-            self.record_total_reward()
+        return results
 
 class Best_case_sim():
-    def __init__(self, test_cells, num_recipients, num_rounds):
+    def __init__(self, test_cells, num_recipients, num_rounds, rand_list):
         self.test_cells = test_cells
         self.num_recipients = num_recipients
         self.curr_round = 0
         self.num_rounds = num_rounds
         self.status = 'running'
         self.total_reward = []
-        self.best_test_cell = self.get_test_cell_with_highest_open_rate()
+        self.best_test_cell = None
+        self.rand_list = rand_list
 
     def get_test_cell_with_highest_open_rate(self):
         highest_open_rate = 0
@@ -218,15 +239,20 @@ class Best_case_sim():
             self.curr_round = i
             opens_in_round = 0
 
+            self.best_test_cell = self.get_test_cell_with_highest_open_rate()
+
             for recipient in range(0, self.num_recipients):
-                opens_in_round += calc_if_opened(self.best_test_cell.open_rate)
+                opens_in_round += calc_if_opened(self.rand_list, self.curr_round, recipient, self.best_test_cell.open_rate)
 
             self.best_test_cell.num_opens_history.append(opens_in_round)
             self.record_total_reward()
 
+    def output(self):
+        results = {}
+        results['Summary Data'] = {'name': 'Best Case', 'total_reward_history': self.total_reward}
+        return results
 
 if __name__=='__main__':
-
     test_cells = [TestCell('A', 0, .1, .5), TestCell('B', 1, .2, .5)]
 
     test_cells_naive = copy.deepcopy(test_cells)
@@ -235,6 +261,8 @@ if __name__=='__main__':
 
     num_members = 100
     num_rounds = 100
+
+    rand_list = create_random_list()
 
     naive = Naive_sim(test_cells_naive, num_members, num_rounds)
     naive.init_naive()
@@ -251,7 +279,9 @@ if __name__=='__main__':
     best_case = Best_case_sim(test_cells_best_case, num_members, num_rounds)
     best_case.run_best_case()
 
-    print('best case', best_case.total_reward[-1])
+    print('best case', best_case.total_reward[-1], '\n')
+
+    # print(best_case.total_reward[-1] > mab.total_reward[-1])
 
 
 #
