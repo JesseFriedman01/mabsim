@@ -2,10 +2,21 @@ import React, { Component } from 'react';
 import Box from '@material-ui/core/Box';
 //import Tooltip from "@material-ui/core/Tooltip";
 import HelpOutlineIcon from '@material-ui/icons/HelpOutline';
+import Button from '@material-ui/core/Button';
+import Zoom from '@material-ui/core/Zoom';
+import Collapse from '@material-ui/core/Collapse';
+import Slide from '@material-ui/core/Slide';
 
 import createPlotlyComponent from 'react-plotly.js/factory';
+
 const Plotly = window.Plotly;
 const Plot = createPlotlyComponent(Plotly);
+
+let helpIcon = {
+  'width': 500,
+  'height': 500,
+  'path': "M504 256c0 136.997-111.043 248-248 248S8 392.997 8 256C8 119.083 119.043 8 256 8s248 111.083 248 248zM262.655 90c-54.497 0-89.255 22.957-116.549 63.758-3.536 5.286-2.353 12.415 2.715 16.258l34.699 26.31c5.205 3.947 12.621 3.008 16.665-2.122 17.864-22.658 30.113-35.797 57.303-35.797 20.429 0 45.698 13.148 45.698 32.958 0 14.976-12.363 22.667-32.534 33.976C247.128 238.528 216 254.941 216 296v4c0 6.627 5.373 12 12 12h56c6.627 0 12-5.373 12-12v-1.333c0-28.462 83.186-29.647 83.186-106.667 0-58.002-60.165-102-116.531-102zM256 338c-25.365 0-46 20.635-46 46 0 25.364 20.635 46 46 46s46-20.636 46-46c0-25.365-20.635-46-46-46z",
+}
 
 class PlotChart extends Component {
 
@@ -22,8 +33,18 @@ class PlotChart extends Component {
             chart_title: this.props.chart_title,
             x_axis_title: this.props.x_axis_title,
             y_axis_title: this.props.y_axis_title,
-            slice_y_axis: this.props.slice_y_axis
+            slice_y_axis: this.props.slice_y_axis,
+            show_legend: this.props.show_legend,
+            help_button_clicked: false
         };
+
+        this.modeBarButtons = [[{
+            name: 'Help',
+            icon: helpIcon,
+            click: () => { this.setState({help_button_clicked:true}) }
+          },]];
+
+        this.testText = this.testText.bind(this);
     }
 
     componentDidUpdate(prevProps) {
@@ -40,6 +61,7 @@ class PlotChart extends Component {
     createPlots(){
         var plots = [];
         const x_axis_vals = [...Array(this.state.num_rounds).keys()]
+
         for (var key in this.state.API_output){
             if (this.state.slice_y_axis === false)
                 var y_axis_vals = this.state.API_output[key][this.state.data_to_plot][this.state.current_round]
@@ -55,15 +77,29 @@ class PlotChart extends Component {
             }
             plots.push(plot)
         }
+
         return plots;
+    }
+
+   testText() {
+        return (
+             <Slide in={true} direction="up">
+             <div style={{backgroundColor:'#e3e3e3', width:this.state.chart_width, height: this.state.chart_height}}>
+                 This chart blah blah
+                 <Button variant="contained" onClick={() => { this.setState({help_button_clicked:false}) }}>
+                    Close
+                 </Button>
+             </div>
+             </Slide >
+            )
     }
 
     render(){
         return (
            <Box>
+               {this.state.help_button_clicked ? this.testText() :
                <Plot
                 data={ this.createPlots() }
-
                 layout={
                         {
                          plot_bgcolor:"#ffffff",
@@ -78,14 +114,14 @@ class PlotChart extends Component {
                          yaxis:{
                                 title:this.state.y_axis_title,
                                },
-                         margin:{ l:60, r:190, t:50, b:60},
-                         legend: {x: 1.01}
+                         margin:{ l:60, r: this.state.show_legend===false ? 100 : 190, t:50, b:60},
+                         legend: {x: 1.01},
+
                           }
-
                         }
+                    config={{"modeBarButtons": this.modeBarButtons, "displayModeBar": true}}
                     style={{'margin': "0px"}}
-
-                />
+                />}
             </Box>
         )
     }

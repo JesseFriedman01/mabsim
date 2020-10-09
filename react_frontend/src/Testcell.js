@@ -102,7 +102,7 @@ class TestCell extends Component {
 
          for (var key in this.props.API_output){
               const prev_list = [...this.state.list]
-              prev_list.filter(getTestCellByID(key))[0].open_rate = this.props.API_output[key]["actual_open_rate"][this.props.current_round] * 100
+              prev_list.filter(getTestCellByID(key))[0].open_rate = this.props.API_output['Detailed Data']['mab'][key]["actual_open_rate"][this.props.current_round] * 100
               this.setState({ list: prev_list })
               this.props.getData({test_cells:prev_list, cell_id:this.state.unique_cell_id, isAutoAllocate: this.state.auto_allocation})
         }
@@ -142,7 +142,7 @@ class TestCell extends Component {
    getOpenRate(test_cell){
         if (this.state.api_data){
             let test_cell_id = test_cell['id']
-            let open_rate_in_current_round = this.state.api_data[test_cell_id]['actual_open_rate'][localStorage.getItem('current_round')]
+            let open_rate_in_current_round = this.state.api_data['Detailed Data']['mab'][test_cell_id]['actual_open_rate'][localStorage.getItem('current_round')]
             return open_rate_in_current_round * 100
         }
         return test_cell.open_rate
@@ -151,7 +151,7 @@ class TestCell extends Component {
    getPercentAllocation(test_cell){
         if (this.state.api_data){
             let test_cell_id = test_cell['id']
-            let percent_allocation_in_current_round = this.state.api_data[test_cell_id]['allocation_percentage_history'][localStorage.getItem('current_round')]
+            let percent_allocation_in_current_round = this.state.api_data['Detailed Data']['mab'][test_cell_id]['allocation_percentage_history'][localStorage.getItem('current_round')]
             return percent_allocation_in_current_round * 100
         }
         return test_cell.percent_allocation
