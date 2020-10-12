@@ -21,7 +21,12 @@ def create_random_list(num_rounds, num_members):
 
     return random_list
 
-# rand_list = create_random_list()
+def calc_total_reward(test_cells, current_round):
+    sum_reward = 0
+    for test_cell in test_cells:
+        sum_reward += sum(test_cell.num_opens_history[0:current_round])
+
+    return sum_reward
 
 class TestCell:
     def __init__(self, name, id, open_rate, percent_allocation, is_holdout=False):
@@ -51,13 +56,12 @@ class Naive_sim():
     def init_naive(self):
         for test_cell in self.test_cells:
             test_cell.num_members_allocated = int(self.num_recipients * test_cell.percent_allocation)
+            test_cell.num_opens_history = [0] * self.num_rounds
+
+        self.total_reward = [0] * self.num_rounds
 
     def record_total_reward(self):
-        sum_reward = 0
-        for test_cell in self.test_cells:
-            sum_reward += sum(test_cell.num_opens_history)
-
-        self.total_reward.append(sum_reward)
+        self.total_reward[self.curr_round] = calc_total_reward(self.test_cells, self.curr_round)
 
     def run_naive(self):
         for i in range(self.curr_round, self.num_rounds):
@@ -67,7 +71,8 @@ class Naive_sim():
                 opens_in_round = 0
                 for recipient in range(0, test_cell.num_members_allocated):
                     opens_in_round += calc_if_opened(self.rand_list, self.curr_round, recipient, test_cell.open_rate)
-                test_cell.num_opens_history.append(opens_in_round)
+                test_cell.num_opens_history[self.curr_round] = opens_in_round
+                # test_cell.num_opens_history.append(opens_in_round)
 
             self.record_total_reward()
 
@@ -104,6 +109,8 @@ class MAB_sim():
             test_cell.actual_open_rate = [0] * self.num_rounds
             test_cell.estimated_open_rate = [0] * self.num_rounds
             test_cell.beta_distribution = [0] * self.num_rounds
+
+        self.total_reward = [0] * self.num_rounds
 
         self.record_actual_open_rate()
         self.record_estimated_open_rate()
@@ -159,11 +166,7 @@ class MAB_sim():
             test_cell.beta_distribution[self.curr_round] = list(np.nan_to_num(pdf))
 
     def record_total_reward(self):
-        sum_reward = 0
-        for test_cell in self.test_cells:
-            sum_reward += sum(test_cell.num_opens_history)
-
-        self.total_reward.append(sum_reward)
+        self.total_reward[self.curr_round] = calc_total_reward(self.test_cells, self.curr_round)
 
     def allocate_members(self):
         for i in range(self.curr_round, self.num_rounds):
@@ -216,6 +219,7 @@ class Best_case_sim():
         self.total_reward = []
         self.best_test_cell = None
         self.rand_list = rand_list
+        self.open_history = []
 
     def get_test_cell_with_highest_open_rate(self):
         highest_open_rate = 0
@@ -231,8 +235,19 @@ class Best_case_sim():
     # def allocate_all_members_to_best_test_cell(self):
     #     self.best_test_cell.num_members_allocated = self.num_recipients
 
-    def record_total_reward(self):
-        self.total_reward.append(sum(self.best_test_cell.num_opens_history))
+    def init_best_case(self):
+        self.open_history = [0] * self.num_rounds
+        self.total_reward = [0] * self.num_rounds
+        for test_cell in self.test_cells:
+            test_cell.num_opens_history = [0] * self.num_rounds
+
+    def calc_total_reward(self):
+        sum_reward = 0
+        sum_reward += sum(self.open_history[0:self.curr_round])
+        return sum_reward
+
+    # def record_total_reward(self):
+    #     self.total_reward[self.curr_round] = calc_total_reward(self.test_cells, self.curr_round)
 
     def run_best_case(self):
         for i in range(self.curr_round, self.num_rounds):
@@ -244,8 +259,9 @@ class Best_case_sim():
             for recipient in range(0, self.num_recipients):
                 opens_in_round += calc_if_opened(self.rand_list, self.curr_round, recipient, self.best_test_cell.open_rate)
 
-            self.best_test_cell.num_opens_history.append(opens_in_round)
-            self.record_total_reward()
+            self.open_history[self.curr_round] = opens_in_round
+
+            self.total_reward[self.curr_round] = self.calc_total_reward()
 
     def output(self):
         results = {}
@@ -253,33 +269,70 @@ class Best_case_sim():
         return results
 
 if __name__=='__main__':
-    test_cells = [TestCell('A', 0, .1, .5), TestCell('B', 1, .2, .5)]
+    test_cells = [TestCell('A', 0, .2, .5), TestCell('B', 1, .1, .5)]
 
     test_cells_naive = copy.deepcopy(test_cells)
     test_cells_mab = copy.deepcopy(test_cells)
     test_cells_best_case = copy.deepcopy(test_cells)
 
-    num_members = 100
-    num_rounds = 100
+    num_rounds = 10
+    num_recipients = 10
 
-    rand_list = create_random_list()
 
-    naive = Naive_sim(test_cells_naive, num_members, num_rounds)
-    naive.init_naive()
-    naive.run_naive()
+    rand_list = create_random_list(num_rounds, num_recipients)
 
-    print('naive', naive.total_reward[-1])
-
-    mab = MAB_sim(test_cells_mab, num_members, num_rounds)
-    mab.init_mab()
-    mab.allocate_members()
-
-    print('mab', mab.total_reward[-1])
-
-    best_case = Best_case_sim(test_cells_best_case, num_members, num_rounds)
+    best_case = Best_case_sim(test_cells_best_case, num_recipients, num_rounds, rand_list)
+    best_case.init_best_case()
     best_case.run_best_case()
 
-    print('best case', best_case.total_reward[-1], '\n')
+    for test_cell in best_case.test_cells:
+        print(test_cell.num_opens_history)
+
+    print(best_case.total_reward)
+
+    best_case.curr_round = 5
+
+    test_cells_best_case[0].open_rate = .1
+    test_cells_best_case[1].open_rate = .2
+
+    print('_____________')
+
+    best_case.run_best_case()
+
+    for test_cell in best_case.test_cells:
+        print(test_cell.id, test_cell.num_opens_history)
+
+    print(best_case.total_reward)
+
+    # naive = Naive_sim(test_cells_naive, num_recipients, num_rounds, rand_list)
+    # naive.init_naive()
+    # naive.run_naive()
+    #
+    # print(naive.total_reward)
+    #
+    # test_cells_naive[1].open_rate = 1
+    #
+    # naive.curr_round = 5
+    #
+    # naive.run_naive()
+    #
+    # for test_cell in test_cells_naive:
+    #     print(test_cell.num_opens_history)
+
+    # print(naive.total_reward)
+
+    # print('naive', naive.total_reward[-1])
+    #
+    # mab = MAB_sim(test_cells_mab, num_members, num_rounds)
+    # mab.init_mab()
+    # mab.allocate_members()
+    #
+    # print('mab', mab.total_reward[-1])
+    #
+    # best_case = Best_case_sim(test_cells_best_case, num_members, num_rounds)
+    # best_case.run_best_case()
+    #
+    # print('best case', best_case.total_reward[-1], '\n')
 
     # print(best_case.total_reward[-1] > mab.total_reward[-1])
 

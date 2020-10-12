@@ -53,7 +53,7 @@ def handleMessage(json_request):
     naive = Naive_sim(test_cells_naive, num_recipients, num_rounds, rand_list)
     best_case = Best_case_sim(test_cells_best_case, num_recipients, num_rounds, rand_list)
 
-    connections[request.sid] = {'naive':naive, 'mab':mab, 'best_case': best_case}
+    connections[request.sid] = {'naive': naive, 'mab': mab, 'best_case': best_case}
     # print('connections', connections)
 
     naive.init_naive()
@@ -61,6 +61,7 @@ def handleMessage(json_request):
 
     mab.init_mab()
 
+    best_case.init_best_case()
     best_case.run_best_case()
 
     thread = Thread(target=mab.allocate_members)
@@ -98,7 +99,7 @@ def handleMessage(json_request):
         }
     )
 
-    print(results)
+    # print(results)
 
     emit('new_results', results)
 
@@ -108,19 +109,29 @@ def modifyTestCells(existing_test_cells, test_cells_from_json):
             if test_cell_json['id'] == test_cell_existing.id:
                 test_cell_existing.open_rate = int(test_cell_json['open_rate'])/100
 
-
-
 @socketIo.on("fluctuate_mab_request")
 def handleMessage(json_request):
     print('connections', connections)
 
+    existing_naive_object = connections[request.sid]['naive']
     existing_MAB_object = connections[request.sid]['mab']
+    existing_best_case_object = connections[request.sid]['best_case']
 
+    existing_naive_object.status = 'running'
     existing_MAB_object.status = 'running'
+    existing_best_case_object.status = 'running'
+
+    existing_naive_object.curr_round = json_request['current_round']
     existing_MAB_object.curr_round = json_request['current_round']
+    existing_best_case_object.curr_round = json_request['current_round']
     # existing_MAB_object.test_cells = createTestCellsList(json_request['test_cells'])
 
+    modifyTestCells(existing_naive_object.test_cells, json_request['test_cells'])
     modifyTestCells(existing_MAB_object.test_cells, json_request['test_cells'])
+    modifyTestCells(existing_best_case_object.test_cells, json_request['test_cells'])
+
+    existing_naive_object.run_naive()
+    existing_best_case_object.run_best_case()
 
     thread = Thread(target=existing_MAB_object.allocate_members)
     thread.start()
@@ -130,10 +141,20 @@ def handleMessage(json_request):
     emit('progress', 100)
     thread.join()
 
+    # results = json.dumps(
+    #            {'naive': connections[request.sid]['naive'].output(),
+    #            'mab': existing_MAB_object.output(),
+    #            'best_case': connections[request.sid]['best_case'].output()})
+
     results = json.dumps(
-               {'naive': connections[request.sid]['naive'].output(),
-               'mab': existing_MAB_object.output(),
-               'best_case': connections[request.sid]['best_case'].output()})
+        {
+            'Summary Data': {'naive': existing_naive_object.output()['Summary Data'],
+                             'mab': existing_MAB_object.output()['Summary Data'],
+                             'best_case': existing_best_case_object.output()['Summary Data']},
+
+            'Detailed Data': {'mab': connections[request.sid]['mab'].output()['Test Cell Data']}
+        }
+    )
 
     emit('new_results', results)
 
