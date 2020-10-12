@@ -6,6 +6,11 @@ import Button from '@material-ui/core/Button';
 import Zoom from '@material-ui/core/Zoom';
 import Collapse from '@material-ui/core/Collapse';
 import Slide from '@material-ui/core/Slide';
+import Container from '@material-ui/core/Container';
+import Card from '@material-ui/core/Card';
+import CardActions from '@material-ui/core/CardActions';
+import CardContent from '@material-ui/core/CardContent';
+import Typography from '@material-ui/core/Typography';
 
 import createPlotlyComponent from 'react-plotly.js/factory';
 
@@ -44,7 +49,7 @@ class PlotChart extends Component {
             click: () => { this.setState({help_button_clicked:true}) }
           },]];
 
-        this.testText = this.testText.bind(this);
+        this.helpText = this.helpText.bind(this);
     }
 
     componentDidUpdate(prevProps) {
@@ -52,7 +57,7 @@ class PlotChart extends Component {
         this.setState({current_round: this.props.current_round});
 
       if(prevProps.width !== this.props.width)
-        this.setState({chart_width: this.props.width});
+        this.forceUpdate()
 
       if(prevProps.height !== this.props.height)
         this.setState({chart_height: this.props.height});
@@ -81,30 +86,45 @@ class PlotChart extends Component {
         return plots;
     }
 
-   testText() {
+   helpText() {
         return (
              <Slide in={true} direction="up">
-             <div style={{backgroundColor:'#e3e3e3', width:this.state.chart_width, height: this.state.chart_height}}>
-                 This chart blah blah
-                 <Button variant="contained" onClick={() => { this.setState({help_button_clicked:false}) }}>
-                    Close
-                 </Button>
-             </div>
-             </Slide >
+                   <Card variant="outlined"  style={{ height:this.state.chart_height, overflowY: 'scroll'}}>
+                      <CardContent>
+                        <Typography variant="h5" component="h2">
+                            {this.state.chart_title}
+                        </Typography>
+                        <br />
+                        <Typography color="textSecondary">
+                            What does this chart illustrate?
+                        </Typography>
+                        {this.props.help_text['What does this chart illustrate?']}
+                        <br /><br />
+                        <Typography color="textSecondary">
+                            Why is it important?
+                        </Typography>
+                          {this.props.help_text['Why is it important?']}
+                      </CardContent>
+                      <CardActions>
+                        <Button size="small" onClick={() => { this.setState({help_button_clicked:false}) }} >Return to Chart</Button>
+                      </CardActions>
+                    </Card>
+             </Slide>
             )
     }
 
     render(){
+        console.log('here')
         return (
            <Box>
-               {this.state.help_button_clicked ? this.testText() :
+               {this.state.help_button_clicked ? this.helpText() :
                <Plot
                 data={ this.createPlots() }
                 layout={
                         {
                          plot_bgcolor:"#ffffff",
                          paper_bgcolor:"#e3e3e3",
-                         width: this.state.chart_width,
+                         autosize:true,
                          height: this.state.chart_height,
                          title: this.state.chart_title,
                          xaxis:{
@@ -114,9 +134,8 @@ class PlotChart extends Component {
                          yaxis:{
                                 title:this.state.y_axis_title,
                                },
-                         margin:{ l:60, r: this.state.show_legend===false ? 100 : 190, t:50, b:60},
-                         legend: {x: 1.01},
-
+                               margin:{ l:60, t:50, b:60},
+                               legend: {x: 1.01}
                           }
                         }
                     config={{"modeBarButtons": this.modeBarButtons, "displayModeBar": true}}
