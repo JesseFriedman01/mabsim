@@ -47,7 +47,7 @@ class PlotChart extends Component {
             name: 'Help',
             icon: helpIcon,
             click: () => { this.setState({help_button_clicked:true}) }
-          },]];
+          }, "toImage"]];
 
         this.helpText = this.helpText.bind(this);
     }
@@ -89,7 +89,7 @@ class PlotChart extends Component {
    helpText() {
         return (
              <Slide in={true} direction="up">
-                   <Card variant="outlined"  style={{ height:this.state.chart_height, overflowY: 'scroll'}}>
+                   <Card variant="outlined"  style={{ height:this.state.chart_height, overflowY: 'scroll', border:'solid', borderWidth:'thin', borderColor: '#c7c7c7'}}>
                       <CardContent>
                         <Typography variant="h5" component="h2">
                             {this.state.chart_title}
@@ -103,10 +103,10 @@ class PlotChart extends Component {
                         <Typography color="textSecondary">
                             Why is it important?
                         </Typography>
-                          {this.props.help_text['Why is it important?']}
+                        {this.props.help_text['Why is it important?']}
                       </CardContent>
                       <CardActions>
-                        <Button size="small" onClick={() => { this.setState({help_button_clicked:false}) }} >Return to Chart</Button>
+                        <Button variant="contained" onClick={() => { this.setState({help_button_clicked:false}) }} >Return to Chart</Button>
                       </CardActions>
                     </Card>
              </Slide>
@@ -138,7 +138,7 @@ class PlotChart extends Component {
                                legend: {x: 1.01}
                           }
                         }
-                    config={{"modeBarButtons": this.modeBarButtons, "displayModeBar": true}}
+                    config={{"modeBarButtons": this.modeBarButtons, "displayModeBar": true, "displaylogo": false}}
                     style={{'margin': "0px"}}
                 />}
             </Box>

@@ -7,22 +7,22 @@ import Box from '@material-ui/core/Box';
 import InputSlider from './Slider';
 import { getChartSpecs } from './chartspecs.js'
 
-const num_cols = 3
+const num_cols = 4
 const chart_margin = 30
 
-const total_width = window.innerWidth - 20
-const chart_width = window.innerWidth/num_cols
+const total_width = window.innerWidth
+const chart_width = total_width/num_cols
 const chart_height = chart_width *.4
 
-const chart_specs = getChartSpecs(chart_width, chart_height)
+const chart_specs = getChartSpecs(chart_width, chart_height, chart_margin)
 
 const layout = [
-                  {i: '0', x: 0, y: 0, w: 1, h: 1},
-                  {i: '1', x: 2, y: 0, w: 1, h: 1},
-                  {i: '2', x: 0, y: 1, w: 2, h: 1},
-                  {i: '3', x: 2, y: 1, w: 1, h: 1},
-                  {i: '4', x: 0, y: 3, w: 2, h: 1},
-                  {i: '5', x: 4, y: 1, w: 3, h: 1},
+                  {i: '0', x: 0, y: 0, w: 2, h: 2},
+                  {i: '1', x: 2, y: 0, w: 2, h: 2},
+                  {i: '2', x: 0, y: 1, w: 1, h: 1},
+                  {i: '3', x: 1, y: 1, w: 1, h: 1},
+                  {i: '4', x: 2, y: 1, w: 1, h: 1},
+                  {i: '5', x: 3, y: 1, w: 1, h: 1},
                ];
 
 let layout_history = []

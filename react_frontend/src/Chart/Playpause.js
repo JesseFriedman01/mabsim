@@ -68,10 +68,9 @@ export default function PlayPause(props) {
             >
               <option value={.5}>.5x</option>
               <option value={1}>1x</option>
-              <option value={2}>2x</option>
-              <option value={3}>3x</option>
               <option value={5}>5x</option>
               <option value={10}>10x</option>
+              <option value={20}>20x</option>
             </Select>
         </FormControl>
       </div>
