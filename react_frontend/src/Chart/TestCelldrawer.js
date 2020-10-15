@@ -3,7 +3,7 @@ import Drawer from "@material-ui/core/Drawer";
 import Container from '@material-ui/core/Container';
 import { makeStyles } from '@material-ui/core/styles';
 import TestCellDrawerStepper from './TestCellDrawerStepper'
-import CancelIcon from '@material-ui/icons/Cancel';
+import CloseIcon from '@material-ui/icons/Close';
 import IconButton from '@material-ui/core/IconButton';
 
 const useStyles = makeStyles((theme) => ({
@@ -81,7 +81,6 @@ export default function TestCellDrawer(props) {
     const classes = useStyles();
 
     return (
-
               <Drawer
                 variant="temporary"
                 classes={{ paper: classes.paper }}
@@ -94,7 +93,7 @@ export default function TestCellDrawer(props) {
                 onClick={handleClickAway}
                 color="inherit"
                >
-                <CancelIcon />
+                <CloseIcon />
               </IconButton>
               <Container justify="center" style={{ marginTop:'20px', marginBottom:'50px'}}>
                  <TestCellDrawerStepper

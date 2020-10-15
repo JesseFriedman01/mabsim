@@ -11,8 +11,8 @@ import PlotChart from './Chart/Plotchart';
 import ProgressBarAPI from './Progressbar';
 import TestCellDrawer from './Chart/TestCelldrawer';
 import ChartGrid from './Chart/Grid';
-
-import ChartTest from './charttest';
+import Home from './home'
+//import ChartTest from './charttest';
 
 class App extends Component {
     constructor(props) {
@@ -104,10 +104,10 @@ class App extends Component {
                 />
 
                <Switch>
+
+                    <Route exact path="/" component={() => <Home />} />
+
                     <Route exact path="/load" component={() => <div>Under Construction</div>} />
-
-                    <Route exact path="/test" component={() => <div><ChartTest /></div>}/>
-
 
                     { this.state.api_data ?
                         <Route exact path="/charts" component={() =>

@@ -1,6 +1,5 @@
 import { createMuiTheme } from '@material-ui/core/styles';
 
-
 const aetnaPurple = '#7d3f98'
 const white = '#FFFFFF'
 
@@ -15,7 +14,7 @@ export default createMuiTheme({
       },
       typography: {
         h1:{
-            fontWeight: 10
+            fontColor: aetnaPurple
         },
         h2:{
             fontColor: aetnaPurple

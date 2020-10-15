@@ -10,7 +10,7 @@ import { getChartSpecs } from './chartspecs.js'
 const num_cols = 4
 const chart_margin = 30
 
-const total_width = window.innerWidth
+const total_width = window.innerWidth - 20
 const chart_width = total_width/num_cols
 const chart_height = chart_width *.4
 
@@ -19,10 +19,10 @@ const chart_specs = getChartSpecs(chart_width, chart_height, chart_margin)
 const layout = [
                   {i: '0', x: 0, y: 0, w: 2, h: 2},
                   {i: '1', x: 2, y: 0, w: 2, h: 2},
-                  {i: '2', x: 0, y: 1, w: 1, h: 1},
-                  {i: '3', x: 1, y: 1, w: 1, h: 1},
-                  {i: '4', x: 2, y: 1, w: 1, h: 1},
-                  {i: '5', x: 3, y: 1, w: 1, h: 1},
+                  {i: '2', x: 0, y: 1, w: 1, h: 2},
+                  {i: '3', x: 1, y: 1, w: 1, h: 2},
+                  {i: '4', x: 2, y: 1, w: 1, h: 2},
+                  {i: '5', x: 3, y: 1, w: 1, h: 2},
                ];
 
 let layout_history = []
@@ -147,11 +147,14 @@ class ChartGrid extends React.Component {
                                 chart_title={item.chart_title}
                                 x_axis_title={item.x_axis_title}
                                 y_axis_title={item.y_axis_title}
+                                y_axis_range={item.y_axis_range}
                                 width={item.width}
                                 height={item.height}
                                 slice_y_axis={item.slice_y_axis}
                                 show_legend={item.show_legend}
                                 help_text={item.help_text}
+                                line_style={item.line_style}
+                                line_colors={item.line_colors}
                             />
                         </Box>
                     )}

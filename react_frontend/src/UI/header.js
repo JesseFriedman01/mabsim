@@ -10,6 +10,7 @@ import MenuIcon from '@material-ui/icons/Menu';
 import {Link} from "react-router-dom"
 import Box from '@material-ui/core/Box';
 import Button from '@material-ui/core/Button';
+import SideDrawer from './sideDrawer'
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -27,25 +28,33 @@ export default function Header(props) {
 
   const classes = useStyles();
   const [anchorEl, setAnchorEl] = React.useState(null);
+  const [openSideBar, setOpenSideBar] = React.useState(false);
   const open = Boolean(anchorEl);
+
 //  const [drawerOpened, setDrawerOpened] = React.useState(false)
 
   const handleMenu = (event) => {
     setAnchorEl(event.currentTarget);
+    setOpenSideBar(true)
   };
 
   const handleMenuClose = () => {
     setAnchorEl(null);
   }
 
-  const handleMenuClick = () => {
-    setAnchorEl(null);
-    props.getStatus(null);
-  };
+//  const handleMenuClick = () => {
+//    setAnchorEl(null);
+//    props.getStatus(null);
+//
+//  };
 
   const toggleDrawer = () => () => {
     props.getTestCellDrawerClicked(true)
   };
+
+  const getSideDrawerStatus = (status) => {
+    setOpenSideBar(status)
+  }
 
   return (
     <div className={classes.root}>
@@ -61,9 +70,7 @@ export default function Header(props) {
             >
                 <MenuIcon />
             </IconButton>
-            <Typography variant="h6" className={classes.title}>
-                MAB Simulator
-            </Typography>
+            <Typography className={classes.title} />
             <Button variant="contained"
                     disabled={props.disableTestCellButton}
                     onClick={toggleDrawer()}
@@ -71,27 +78,10 @@ export default function Header(props) {
               Modify Open Rates
             </Button>
 
-            <Menu
-                id="menu-appbar"
-                anchorEl={anchorEl}
-                anchorOrigin={{
-                vertical: 'top',
-                horizontal: 'right',
-                }}
-                keepMounted
-                transformOrigin={{
-                vertical: 'top',
-                horizontal: 'right',
-                }}
-                open={open}
-                onClose={handleMenuClose}
-            >
-            <MenuItem onClick={handleMenuClick} component={Link} to="/create" id="create">Create sim</MenuItem>
-            <MenuItem onClick={handleMenuClick} component={Link} to="/load" id="load">Load sim</MenuItem>
-            </Menu>
         </Toolbar>
       </AppBar>
       </Box>
+      <SideDrawer openSideBar={openSideBar} setStatus={getSideDrawerStatus} />
     </div>
   );
 }

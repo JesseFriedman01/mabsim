@@ -63,10 +63,17 @@ class PlotChart extends Component {
         this.setState({chart_height: this.props.height});
     }
 
+    getLineColors(counter){
+        if (this.props.line_colors)
+            return this.props.line_colors[counter]
+        return null
+    }
+
     createPlots(){
         var plots = [];
         const x_axis_vals = [...Array(this.state.num_rounds).keys()]
 
+        let counter = 0
         for (var key in this.state.API_output){
             if (this.state.slice_y_axis === false)
                 var y_axis_vals = this.state.API_output[key][this.state.data_to_plot][this.state.current_round]
@@ -78,9 +85,14 @@ class PlotChart extends Component {
                 y: y_axis_vals,
                 name: this.state.API_output[key]["name"],
                 type: 'scatter',
-                mode: 'lines'
+                mode: 'lines',
+                line: {
+                    dash: this.props.line_style,
+                    color: this.getLineColors(counter)
+                }
             }
             plots.push(plot)
+            counter++
         }
 
         return plots;
@@ -133,6 +145,7 @@ class PlotChart extends Component {
                                 },
                          yaxis:{
                                 title:this.state.y_axis_title,
+                                range:this.props.y_axis_range
                                },
                                margin:{ l:60, t:50, b:60},
                                legend: {x: 1.01}
