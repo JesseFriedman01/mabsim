@@ -1,10 +1,6 @@
 import random
 from scipy.stats import beta
-import json
-import matplotlib.pyplot as plt
 import numpy as np
-import multiprocessing
-import pprint
 import copy
 
 def calc_if_opened(rand_list, current_round, recipient_num, test_cell_open_rate):
@@ -265,7 +261,7 @@ class Best_case_sim():
 
     def output(self):
         results = {}
-        results['Summary Data'] = {'name': 'Best Case', 'total_reward_history': self.total_reward}
+        results['Summary Data'] = {'name': 'Optimal Case', 'total_reward_history': self.total_reward}
         return results
 
 if __name__=='__main__':
@@ -335,20 +331,3 @@ if __name__=='__main__':
     # print('best case', best_case.total_reward[-1], '\n')
 
     # print(best_case.total_reward[-1] > mab.total_reward[-1])
-
-
-#
-#     mab = MAB_sim(test_cells, num_members, num_rounds)
-# #     # print(mab.calc_total_recipients())
-#     mab.init_mab()
-#     mab.allocate_members()
-#
-#     pp = pprint.PrettyPrinter(indent=4)
-#     pp.pprint(mab.output())
-
-#
-    # for test_cell in test_cells:
-    #     # print(test_cell.num_members_allocated_history)
-    #     print(test_cell.num_opens_history)
-    #
-    # print(mab.total_reward)

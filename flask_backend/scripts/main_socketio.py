@@ -51,9 +51,9 @@ def handleMessage(json_request):
 
     mab = MAB_sim(test_cells_mab, num_recipients, num_rounds, rand_list)
     naive = Naive_sim(test_cells_naive, num_recipients, num_rounds, rand_list)
-    best_case = Best_case_sim(test_cells_best_case, num_recipients, num_rounds, rand_list)
+    optimal = Best_case_sim(test_cells_best_case, num_recipients, num_rounds, rand_list)
 
-    connections[request.sid] = {'naive': naive, 'mab': mab, 'best_case': best_case}
+    connections[request.sid] = {'naive': naive, 'mab': mab, 'optimal': optimal}
     # print('connections', connections)
 
     naive.init_naive()
@@ -61,8 +61,8 @@ def handleMessage(json_request):
 
     mab.init_mab()
 
-    best_case.init_best_case()
-    best_case.run_best_case()
+    optimal.init_best_case()
+    optimal.run_best_case()
 
     thread = Thread(target=mab.allocate_members)
     thread.start()
@@ -91,9 +91,9 @@ def handleMessage(json_request):
 
     results = json.dumps(
         {
-            'Summary Data': {'naive': connections[request.sid]['naive'].output()['Summary Data'],
+            'Summary Data': {'optimal': connections[request.sid]['optimal'].output()['Summary Data'],
                              'mab': connections[request.sid]['mab'].output()['Summary Data'],
-                             'best_case': connections[request.sid]['best_case'].output()['Summary Data']},
+                             'naive': connections[request.sid]['naive'].output()['Summary Data']},
 
             'Detailed Data': {'mab': connections[request.sid]['mab'].output()['Test Cell Data']}
         }
@@ -115,23 +115,23 @@ def handleMessage(json_request):
 
     existing_naive_object = connections[request.sid]['naive']
     existing_MAB_object = connections[request.sid]['mab']
-    existing_best_case_object = connections[request.sid]['best_case']
+    existing_optimal_object = connections[request.sid]['optimal']
 
     existing_naive_object.status = 'running'
     existing_MAB_object.status = 'running'
-    existing_best_case_object.status = 'running'
+    existing_optimal_object.status = 'running'
 
     existing_naive_object.curr_round = json_request['current_round']
     existing_MAB_object.curr_round = json_request['current_round']
-    existing_best_case_object.curr_round = json_request['current_round']
+    existing_optimal_object.curr_round = json_request['current_round']
     # existing_MAB_object.test_cells = createTestCellsList(json_request['test_cells'])
 
     modifyTestCells(existing_naive_object.test_cells, json_request['test_cells'])
     modifyTestCells(existing_MAB_object.test_cells, json_request['test_cells'])
-    modifyTestCells(existing_best_case_object.test_cells, json_request['test_cells'])
+    modifyTestCells(existing_optimal_object.test_cells, json_request['test_cells'])
 
     existing_naive_object.run_naive()
-    existing_best_case_object.run_best_case()
+    existing_optimal_object.run_best_case()
 
     thread = Thread(target=existing_MAB_object.allocate_members)
     thread.start()
@@ -148,9 +148,9 @@ def handleMessage(json_request):
 
     results = json.dumps(
         {
-            'Summary Data': {'naive': existing_naive_object.output()['Summary Data'],
+            'Summary Data': {'optimal': existing_optimal_object.output()['Summary Data'],
                              'mab': existing_MAB_object.output()['Summary Data'],
-                             'best_case': existing_best_case_object.output()['Summary Data']},
+                             'naive': existing_naive_object.output()['Summary Data']},
 
             'Detailed Data': {'mab': connections[request.sid]['mab'].output()['Test Cell Data']}
         }
