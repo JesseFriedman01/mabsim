@@ -13,15 +13,20 @@ import ErrorIcon from '@material-ui/icons/Error';
 import CampaignSummary from './campaignSummary';
 
 const useStyles = makeStyles((theme) => ({
+  main: {
+    width: '70%',
+    marginLeft: "15%",
+    marginRight: "15%",
+  },
   root: {
     width: '100%',
     margin: "10 0 0 0",
   },
   text_field: {
-    width: '80%',
+    width: '96%',
     marginBottom: theme.spacing(3),
-    marginLeft:'10%',
-    marginRight:'10%',
+    marginLeft:'2%',
+    marginRight:'2%',
     backgroundColor:'#edebeb'
   },
   title_box: {
@@ -201,44 +206,44 @@ export default function HorizontalLinearStepper(props) {
   }
 
   return (
-    <Grid container justify="center" style={{marginTop:'50px'}}>
-      <Grid item className={classes.stepper}>
-        <div className={classes.title_box}>
-            Create Sim
-        </div>
-        <Box boxShadow={1} pl={5} pb={5} pr={6} >
-            <div className={classes.root}>
-              <Stepper activeStep={activeStep} className={classes.stepper}>
-                {steps.map((label, index) => {
-                  const stepProps = {};
-                  const labelProps = {};
-                  return (
-                    <Step key={label} {...stepProps}>
-                      <StepLabel {...labelProps}>{label}</StepLabel>
-                    </Step>
-                  );
-                })}
-              </Stepper>
-                <div>
-                    <Typography className={classes.instructions}>{getStepContent(activeStep)}</Typography>
-                    {errorMsg}
-                    <div>
-                    <Button disabled={activeStep === 0} onClick={handleBack} className={classes.button}>
-                        Back
-                    </Button>
-                    <Button
-                        variant="contained"
-                        color="primary"
-                        onClick={handleNext}
-                        className={classes.button}
-                      >
-                       {activeStep === steps.length - 1 ? 'Finish' : 'Next'}
-                    </Button>
-               </div>
-              </div>
+        <Grid className={classes.main}>
+          <Grid item className={classes.stepper}>
+            <div className={classes.title_box}>
+                Create Sim
             </div>
-          </Box>
-        </Grid>
-     </Grid>
+            <Box boxShadow={1} pl={5} pb={5} pr={6} >
+                <div className={classes.root}>
+                  <Stepper activeStep={activeStep} className={classes.stepper}>
+                    {steps.map((label, index) => {
+                      const stepProps = {};
+                      const labelProps = {};
+                      return (
+                        <Step key={label} {...stepProps}>
+                          <StepLabel {...labelProps}>{label}</StepLabel>
+                        </Step>
+                      );
+                    })}
+                  </Stepper>
+                    <div>
+                        <Typography className={classes.instructions}>{getStepContent(activeStep)}</Typography>
+                        {errorMsg}
+                        <div>
+                        <Button disabled={activeStep === 0} onClick={handleBack} className={classes.button}>
+                            Back
+                        </Button>
+                        <Button
+                            variant="contained"
+                            color="primary"
+                            onClick={handleNext}
+                            className={classes.button}
+                          >
+                           {activeStep === steps.length - 1 ? 'Finish' : 'Next'}
+                        </Button>
+                   </div>
+                  </div>
+                </div>
+              </Box>
+            </Grid>
+         </Grid>
   );
 }

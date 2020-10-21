@@ -15,15 +15,21 @@ import ErrorIcon from '@material-ui/icons/Error';
 import TestCellDrawerSummary from './TestCellDrawerSummary';
 
 const useStyles = makeStyles((theme) => ({
+  main: {
+    width: '70%',
+    marginLeft: "15%",
+    marginRight: "15%",
+    marginBottom: "10px"
+  },
   root: {
     width: '100%',
     margin: "10 0 0 0",
   },
   text_field: {
-    width: '80%',
+    width: '96%',
     marginBottom: theme.spacing(3),
-    marginLeft:'10%',
-    marginRight:'10%',
+    marginLeft:'2%',
+    marginRight:'2%',
     backgroundColor:'#edebeb'
   },
   title_box: {
@@ -190,7 +196,7 @@ export default function TestCellDrawerStepper(props) {
   }
 
   return (
-    <Grid container justify="center">
+    <Grid className={classes.main}>
       <Grid item className={classes.stepper}>
         <div className={classes.title_box}>
             Modify Open Rates

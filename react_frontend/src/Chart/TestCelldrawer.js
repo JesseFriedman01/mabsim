@@ -95,15 +95,13 @@ export default function TestCellDrawer(props) {
                >
                 <CloseIcon />
               </IconButton>
-              <Container justify="center" style={{ marginTop:'20px', marginBottom:'50px'}}>
-                 <TestCellDrawerStepper
-                    testCells={testCellsOriginal}
-                    apiData={apiData}
-                    drawerClicked={props.getTestCellDrawerClicked}
-                    setTestCells={props.getTestCells}
-                    setStatus={props.getStatus}
-                 />
-               </Container>
+              <TestCellDrawerStepper
+                testCells={testCellsOriginal}
+                apiData={apiData}
+                drawerClicked={props.getTestCellDrawerClicked}
+                setTestCells={props.getTestCells}
+                setStatus={props.getStatus}
+              />
               </Drawer>
         );
 }
