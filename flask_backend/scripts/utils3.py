@@ -2,8 +2,11 @@ import random
 from scipy.stats import beta
 import numpy as np
 import copy
+import math
 
 def calc_if_opened(rand_list, current_round, recipient_num, test_cell_open_rate):
+    # print(current_round, recipient_num)
+    # input()
     return 1 if rand_list[current_round][recipient_num] <= test_cell_open_rate else 0
 
 def create_random_list(num_rounds, num_members):
@@ -76,6 +79,178 @@ class Naive_sim():
         results = {}
         results['Summary Data'] = {'name': 'Base Case', 'total_reward_history': self.total_reward}
         return results
+
+class Epsilon_Greedy_sim():
+    def __init__(self, test_cells, num_recipients, num_rounds, rand_list):
+        self.test_cells = test_cells
+        self.num_recipients = num_recipients
+        self.curr_round = 0
+        self.num_rounds = num_rounds
+        self.status = 'running'
+        self.total_reward = []
+        self.rand_list = rand_list
+        self.total_recipients = sum(test_cell.percent_allocation for test_cell in self.test_cells) * num_recipients
+        self.epsilon = 0
+
+    def init_epsilon_greedy(self):
+        for test_cell in self.test_cells:
+            test_cell.num_members_allocated = int(self.num_recipients * test_cell.percent_allocation)
+            test_cell.num_opens_history = [0] * self.num_rounds
+            test_cell.allocation_percentage_history = [0] * self.num_rounds
+            test_cell.num_members_allocated_history = [0] * self.num_rounds
+
+        self.total_reward = [0] * self.num_rounds
+        self.record_allocation_history()
+        self.calc_num_opens()
+        self.record_total_reward()
+        self.curr_round += 1
+
+    def record_total_reward(self):
+        self.total_reward[self.curr_round] = calc_total_reward(self.test_cells, self.curr_round)
+
+    def record_allocation_history(self):
+        for test_cell in self.test_cells:
+            test_cell.num_members_allocated_history[self.curr_round] = test_cell.num_members_allocated
+            test_cell.allocation_percentage_history[
+                self.curr_round] = test_cell.num_members_allocated / self.total_recipients
+
+    def calc_num_opens(self):
+        for test_cell in self.test_cells:
+            for recipient in range(test_cell.num_members_allocated):
+                test_cell.num_opens += calc_if_opened(self.rand_list, self.curr_round, recipient, test_cell.open_rate)
+
+            test_cell.num_opens_history[self.curr_round] = test_cell.num_opens
+
+    def reset_test_cells_allocation(self):
+        for test_cell in self.test_cells:
+            test_cell.num_members_allocated = 0
+
+    def reset_test_cells_opens(self):
+        for test_cell in self.test_cells:
+            test_cell.num_opens = 0
+
+    # def explore_or_exploit(self):
+    #     if random.random() <= epsilon:
+    #         return 'explore'
+    #     return 'exploit'
+
+    def calc_delayed_epsilon(self):
+        self.epsilon = 1/(math.log(self.curr_round + .00001))
+        return 1 if self.epsilon < 0 else self.epsilon
+
+    def run_epsilon_greedy(self):
+        max_open_rate = 0
+        optimal_test_cell = None
+
+        for test_cell in self.test_cells:
+            open_sum = sum(test_cell.num_opens_history[0:self.curr_round])
+            allocated_sum = sum(test_cell.num_members_allocated_history[0:self.curr_round])
+            if open_sum/allocated_sum > max_open_rate:
+                max_open_rate = open_sum/allocated_sum
+                optimal_test_cell = test_cell
+
+        return optimal_test_cell
+
+    def allocate_members(self):
+        for i in range(self.curr_round, self.num_rounds):
+            self.curr_round = i
+            self.reset_test_cells_allocation()
+
+            self.calc_delayed_epsilon()
+
+            chosen_test_cell = np.random.choice(self.test_cells) if np.random.uniform() < self.epsilon else \
+                self.run_epsilon_greedy()
+
+            for _ in range(int(self.num_recipients)):
+                chosen_test_cell.num_members_allocated += 1
+
+            self.reset_test_cells_opens()
+            self.calc_num_opens()
+            self.record_allocation_history()
+            self.record_total_reward()
+
+class UCB1_sim():
+    def __init__(self, test_cells, num_recipients, num_rounds, rand_list):
+        self.test_cells = test_cells
+        self.num_recipients = num_recipients
+        self.curr_round = 0
+        self.num_rounds = num_rounds
+        self.status = 'running'
+        self.total_reward = []
+        self.rand_list = rand_list
+        self.total_recipients = sum(test_cell.percent_allocation for test_cell in self.test_cells) * num_recipients
+
+    def init_UCB1(self):
+        for test_cell in self.test_cells:
+            test_cell.num_members_allocated = int(self.num_recipients * test_cell.percent_allocation)
+            test_cell.num_opens_history = [0] * self.num_rounds
+            test_cell.allocation_percentage_history = [0] * self.num_rounds
+            test_cell.num_members_allocated_history = [0] * self.num_rounds
+            test_cell.num_times_chosen = 1
+
+        self.total_reward = [0] * self.num_rounds
+
+        self.record_allocation_history()
+        self.calc_num_opens()
+        self.record_total_reward()
+
+        self.curr_round += 1
+
+    def record_total_reward(self):
+        self.total_reward[self.curr_round] = calc_total_reward(self.test_cells, self.curr_round)
+
+    def record_allocation_history(self):
+        for test_cell in self.test_cells:
+            test_cell.num_members_allocated_history[self.curr_round] = test_cell.num_members_allocated
+            test_cell.allocation_percentage_history[self.curr_round] = test_cell.num_members_allocated / self.total_recipients
+
+    def calc_num_opens(self):
+        for test_cell in self.test_cells:
+            for recipient in range(test_cell.num_members_allocated):
+                test_cell.num_opens += calc_if_opened(self.rand_list, self.curr_round, recipient, test_cell.open_rate)
+
+            test_cell.num_opens_history[self.curr_round] = test_cell.num_opens
+
+    def reset_test_cells_allocation(self):
+        for test_cell in self.test_cells:
+            test_cell.num_members_allocated = 0
+
+    def reset_test_cells_opens(self):
+        for test_cell in self.test_cells:
+            test_cell.num_opens = 0
+
+    def run_UCB1(self):
+        max = 0
+        optimal_test_cell = None
+
+        for test_cell in self.test_cells:
+            open_sum = sum(test_cell.num_opens_history[0:self.curr_round])
+            allocated_sum = sum(test_cell.num_members_allocated_history[0:self.curr_round])
+
+            formula_part_1 = open_sum/ allocated_sum
+            formula_part_2 = math.sqrt( (2*math.log(self.curr_round )) / allocated_sum )
+            fomula_combined = formula_part_1 + formula_part_2
+
+            if fomula_combined > max:
+                max = fomula_combined
+                optimal_test_cell = test_cell
+
+        return optimal_test_cell
+
+    def allocate_members(self):
+        for i in range(self.curr_round, self.num_rounds):
+            self.curr_round = i
+            self.reset_test_cells_allocation()
+
+            chosen_test_cell = self.run_UCB1()
+
+            for _ in range(int(self.num_recipients)):
+                chosen_test_cell.num_members_allocated += 1
+
+            self.reset_test_cells_opens()
+            self.calc_num_opens()
+            self.record_allocation_history()
+            self.record_total_reward()
 
 class MAB_sim():
     def __init__(self, test_cells, num_recipients, num_rounds, rand_list):
@@ -265,69 +440,71 @@ class Best_case_sim():
         return results
 
 if __name__=='__main__':
-    test_cells = [TestCell('A', 0, .2, .5), TestCell('B', 1, .1, .5)]
+    for _ in range(100):
+        test_cells = [TestCell('A', 0, .15, .25), TestCell('B', 1, .1, .25), TestCell('C', 1, .11, .25), TestCell('D', 1, .13, .25)]
 
-    test_cells_naive = copy.deepcopy(test_cells)
-    test_cells_mab = copy.deepcopy(test_cells)
-    test_cells_best_case = copy.deepcopy(test_cells)
+        test_cells_naive = copy.deepcopy(test_cells)
+        test_cells_epsilon_greedy = copy.deepcopy(test_cells)
+        test_cells_ucb1 = copy.deepcopy(test_cells)
+        test_cells_mab = copy.deepcopy(test_cells)
+        test_cells_best_case = copy.deepcopy(test_cells)
 
-    num_rounds = 10
-    num_recipients = 10
+        num_rounds = 100
+        num_recipients = 100
 
+        rand_list = create_random_list(num_rounds, num_recipients)
 
-    rand_list = create_random_list(num_rounds, num_recipients)
+        eg = Epsilon_Greedy_sim(test_cells_epsilon_greedy, num_recipients, num_rounds, rand_list)
+        eg.init_epsilon_greedy()
+        eg.allocate_members()
 
-    best_case = Best_case_sim(test_cells_best_case, num_recipients, num_rounds, rand_list)
-    best_case.init_best_case()
-    best_case.run_best_case()
+        # print('greedy', eg.total_reward[-1])
 
-    for test_cell in best_case.test_cells:
-        print(test_cell.num_opens_history)
+        ucb = UCB1_sim(test_cells_ucb1, num_recipients, num_rounds, rand_list)
+        ucb.init_UCB1()
+        ucb.allocate_members()
 
-    print(best_case.total_reward)
+        # print('ucb', ucb.total_reward[-1])
 
-    best_case.curr_round = 5
+        mab = MAB_sim(test_cells_mab, num_recipients, num_rounds, rand_list)
+        mab.init_mab()
+        mab.allocate_members()
 
-    test_cells_best_case[0].open_rate = .1
-    test_cells_best_case[1].open_rate = .2
+        # print('mab', mab.total_reward[-1])
 
-    print('_____________')
+        best_case = Best_case_sim(test_cells_best_case, num_recipients, num_rounds, rand_list)
+        best_case.init_best_case()
+        best_case.run_best_case()
 
-    best_case.run_best_case()
+        print( 'eg', (eg.total_reward[-1]/best_case.total_reward[-1]) * 100,
+               'ucb', (ucb.total_reward[-1]/best_case.total_reward[-1]) * 100,
+               'mab', (mab.total_reward[-1]/best_case.total_reward[-1] * 100) )
 
-    for test_cell in best_case.test_cells:
-        print(test_cell.id, test_cell.num_opens_history)
-
-    print(best_case.total_reward)
-
-    # naive = Naive_sim(test_cells_naive, num_recipients, num_rounds, rand_list)
-    # naive.init_naive()
-    # naive.run_naive()
+    # print('best_case', best_case.total_reward[-1])
     #
-    # print(naive.total_reward)
-    #
-    # test_cells_naive[1].open_rate = 1
-    #
-    # naive.curr_round = 5
-    #
-    # naive.run_naive()
-    #
-    # for test_cell in test_cells_naive:
-    #     print(test_cell.num_opens_history)
+    # print('UCB / MAB = ', (ucb.total_reward[-1]/mab.total_reward[-1]) * 100)
 
-    # print(naive.total_reward)
+# naive = Naive_sim(test_cells_naive, num_recipients, num_rounds, rand_list)
+# naive.init_naive()
+# naive.run_naive()
+#
+# print('naive', naive.total_reward[-1])
+#
+# ucb = UCB1_sim(test_cells_ucb1, num_recipients, num_rounds, rand_list)
+# ucb.init_UCB1()
+# ucb.allocate_members()
+#
+# print('ucb', ucb.total_reward[-1])
+#
+# mab = MAB_sim(test_cells_mab, num_recipients, num_rounds, rand_list)
+# mab.init_mab()
+# mab.allocate_members()
+#
+# print('mab', mab.total_reward[-1])
+#
+# best_case = Best_case_sim(test_cells_best_case, num_recipients, num_rounds, rand_list)
+# best_case.init_best_case()
+# best_case.run_best_case()
+#
+# print('best_case', best_case.total_reward[-1])
 
-    # print('naive', naive.total_reward[-1])
-    #
-    # mab = MAB_sim(test_cells_mab, num_members, num_rounds)
-    # mab.init_mab()
-    # mab.allocate_members()
-    #
-    # print('mab', mab.total_reward[-1])
-    #
-    # best_case = Best_case_sim(test_cells_best_case, num_members, num_rounds)
-    # best_case.run_best_case()
-    #
-    # print('best case', best_case.total_reward[-1], '\n')
-
-    # print(best_case.total_reward[-1] > mab.total_reward[-1])
