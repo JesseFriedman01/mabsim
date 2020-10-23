@@ -1,8 +1,8 @@
 import React, { useEffect } from 'react';
 import io from 'socket.io-client';
 
-const endPoint = "http://localhost:5000";
-const socket = io.connect(`${endPoint}`);
+//const endPoint = "http://localhost:5000";
+//const socket = io.connect(`${endPoint}`);
 
 export default function APIFetch(props) {
     const [testCells, setTestCells] = React.useState(props.test_cell_list)
@@ -26,19 +26,19 @@ export default function APIFetch(props) {
 
     const getData = () => {
         props.getAPIData(null)
-        socket.on('new_results', (result) => {
+        props.socket.on('new_results', (result) => {
             props.getAPIData(JSON.parse(result));
         });
-        socket.on('progress', (result) => {
+        props.socket.on('progress', (result) => {
             props.getAPIProgress(result);
         });
     }
 
     const sendRequest = () => {
         if (props.name === "Submit")
-            socket.emit("new_mab_request", createJSONforPost())
+            props.socket.emit("new_mab_request", createJSONforPost())
         else if (props.name === "Fluctuate")
-            socket.emit("fluctuate_mab_request", createJSONforPost())
+            props.socket.emit("fluctuate_mab_request", createJSONforPost())
     };
 
     return(null)

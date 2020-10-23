@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
@@ -9,6 +9,7 @@ import Menu from '@material-ui/core/Menu';
 import MenuIcon from '@material-ui/icons/Menu';
 import {Link} from "react-router-dom"
 import Box from '@material-ui/core/Box';
+import ButtonGroup from '@material-ui/core/ButtonGroup';
 import Button from '@material-ui/core/Button';
 import SideDrawer from './sideDrawer'
 
@@ -29,9 +30,19 @@ export default function Header(props) {
   const classes = useStyles();
   const [anchorEl, setAnchorEl] = React.useState(null);
   const [openSideBar, setOpenSideBar] = React.useState(false);
+  const [disableTestCellButton, setDisableTestCellButton] = React.useState(props.disableTestCellButton)
+  const [campaignName, setCampaignName] = React.useState(props.campaignName)
   const open = Boolean(anchorEl);
 
 //  const [drawerOpened, setDrawerOpened] = React.useState(false)
+
+  useEffect(() => {
+      setDisableTestCellButton(props.disableTestCellButton);
+  }, [props.disableTestCellButton]);
+
+  useEffect(() => {
+      setCampaignName(props.campaignName);
+  }, [props.campaignName]);
 
   const handleMenu = (event) => {
     setAnchorEl(event.currentTarget);
@@ -41,12 +52,6 @@ export default function Header(props) {
   const handleMenuClose = () => {
     setAnchorEl(null);
   }
-
-//  const handleMenuClick = () => {
-//    setAnchorEl(null);
-//    props.getStatus(null);
-//
-//  };
 
   const toggleDrawer = () => () => {
     props.getTestCellDrawerClicked(true)
@@ -71,17 +76,34 @@ export default function Header(props) {
                 <MenuIcon />
             </IconButton>
             <Typography className={classes.title} />
-            <Button variant="contained"
-                    disabled={props.disableTestCellButton}
-                    onClick={toggleDrawer()}
-            >
-              Modify Open Rates
-            </Button>
-
+            {props.disableTestCellButton === false ?
+                <Button variant="contained"
+                        style={{backgroundColor:"#ffffff"}}
+                        onClick={toggleDrawer()}
+                >
+                  Modify Open Rates
+                </Button>:null
+             }
         </Toolbar>
       </AppBar>
       </Box>
-      <SideDrawer openSideBar={openSideBar} setStatus={getSideDrawerStatus} />
+      <SideDrawer
+        openSideBar={openSideBar}
+        setOpenSideBar={setOpenSideBar}
+        setStatus={getSideDrawerStatus}
+        setDisableTestCellButton={setDisableTestCellButton}
+        getTestCellButtonVisible={props.getTestCellButtonVisible}
+        disableSaveButton={props.disableTestCellButton}
+        endPoint={props.endPoint}
+        socket={props.socket}
+        setAPIData={props.setAPIData}
+        numRounds={props.numRounds}
+        setNumRounds={props.setNumRounds}
+        campaignName={props.campaignName}
+        setCampaignName={props.getCampaignName}
+        testCells={props.testCells}
+        setTestCells={props.setTestCells}
+      />
     </div>
   );
 }

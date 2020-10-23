@@ -13,6 +13,10 @@ import TestCellDrawer from './Chart/TestCelldrawer';
 import ChartGrid from './Chart/Grid';
 import Home from './home'
 //import ChartTest from './charttest';
+import io from 'socket.io-client';
+
+const endPoint = "http://localhost:5000";
+const socket = io.connect(`${endPoint}`);
 
 class App extends Component {
     constructor(props) {
@@ -40,6 +44,7 @@ class App extends Component {
         this.getStatus = this.getStatus.bind(this);
         this.getAPIData = this.getAPIData.bind(this);
         this.getAPIProgress = this.getAPIProgress.bind(this);
+        this.getTestCellButtonVisible = this.getTestCellButtonVisible.bind(this);
         this.getTestCellDrawerClicked = this.getTestCellDrawerClicked.bind(this);
         this.getCurrentRound = this.getCurrentRound.bind(this);
     }
@@ -80,6 +85,10 @@ class App extends Component {
             this.setState({ api_progress: 0 })
     }
 
+    getTestCellButtonVisible(data){
+        this.setState({ disable_test_cell_button: data })
+    }
+
     getTestCellDrawerClicked(data){
         this.setState({ test_cell_drawer_button_clicked: data })
         this.setState({ pause_slider: true })
@@ -101,6 +110,16 @@ class App extends Component {
                 <Header getStatus={this.getStatus}
                         disableTestCellButton={this.state.disable_test_cell_button}
                         getTestCellDrawerClicked={this.getTestCellDrawerClicked}
+                        getTestCellButtonVisible={this.getTestCellButtonVisible}
+                        endPoint={endPoint}
+                        socket={socket}
+                        setAPIData={this.getAPIData}
+                        numRounds={this.state.num_rounds}
+                        setNumRounds={this.getNumRounds}
+                        campaignName={this.state.campaign_name}
+                        setCampaignName={this.state.getCampaignName}
+                        testCells={this.state.test_cells}
+                        setTestCells={this.getTestCells}
                 />
 
                <Switch>
@@ -148,7 +167,9 @@ class App extends Component {
                          test_cell_list={this.state.test_cells}
                          num_rounds={this.state.num_rounds}
                          num_recipients={this.state.num_recipients}
-                         getStatus={this.getStatus}/>
+                         getStatus={this.getStatus}
+                         endPoint={endPoint}
+                         socket={socket}/>
                 :null
             }
 
@@ -161,7 +182,9 @@ class App extends Component {
                          num_rounds={this.state.num_rounds}
                          num_recipients={this.state.num_recipients}
                          current_round={parseInt(localStorage.getItem('current_round'))}
-                         getStatus={this.getStatus} />
+                         getStatus={this.getStatus}
+                         endPoint={endPoint}
+                         socket={socket}/>
                 :null
             }
 

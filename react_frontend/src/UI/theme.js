@@ -6,10 +6,13 @@ const white = '#FFFFFF'
 export default createMuiTheme({
       palette: {
         common:{
-            purple: white
+            main: white
         },
         primary:{
             main: aetnaPurple
+        },
+        secondary:{
+            main: "#ffe6ff"
         }
       },
       typography: {

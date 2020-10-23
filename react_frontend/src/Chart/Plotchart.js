@@ -126,7 +126,6 @@ class PlotChart extends Component {
     }
 
     render(){
-        console.log('here')
         return (
            <Box>
                {this.state.help_button_clicked ? this.helpText() :
@@ -142,10 +141,12 @@ class PlotChart extends Component {
                          xaxis:{
                                 title: this.state.x_axis_title,
                                 range:[0, parseInt(this.state.num_rounds)-1],
+                                fixedrange: true
                                 },
                          yaxis:{
                                 title:this.state.y_axis_title,
-                                range:this.props.y_axis_range
+                                range:this.props.y_axis_range,
+                                fixedrange: true
                                },
                                margin:{ l:60, t:50, b:60},
                                legend: {x: 1.01}

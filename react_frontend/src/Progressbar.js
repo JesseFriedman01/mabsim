@@ -8,7 +8,6 @@ class ProgressBarAPI extends Component {
 
     constructor(props) {
         super(props);
-
         this.state = {
             current_progress_value: this.props.current_progress_value,
         };
