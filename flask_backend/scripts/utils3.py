@@ -3,10 +3,66 @@ from scipy.stats import beta
 import numpy as np
 import copy
 import math
+import sqlite3
+from sqlite3 import Error
+import json
+
+def connect_to_db():
+    # print('object', mab_object)
+    conn = None
+    try:
+        conn = sqlite3.connect('mab')
+        print(sqlite3.version)
+    except Error as e:
+        print(e)
+    # finally:
+    #     if conn:
+    #         conn.close()
+    return conn
+
+def write_to_table(campaign_name, sim_description, sim_results, num_rounds, test_cells, pickled_objects_to_store):
+    conn = sqlite3.connect('mab')
+    c = conn.cursor()
+
+    create_table_query = 'create table if not exists ' \
+                         'saved_sims ' \
+                         '(id INTEGER PRIMARY KEY ASC, ' \
+                         'date_time DATETIME DEFAULT CURRENT_TIMESTAMP, ' \
+                         'campaign_name TEXT, ' \
+                         'description TEXT, ' \
+                         'data BLOB, ' \
+                         'num_rounds INTEGER, ' \
+                         'test_cells BLOB, ' \
+                         'pickled_objects BLOB ' \
+                         ')'
+
+    c.execute(create_table_query)
+
+    c.execute("insert into saved_sims (campaign_name, description, data, num_rounds, test_cells, pickled_objects) values (?, ?, ?, ?, ?, ?)",
+              (campaign_name, sim_description, sim_results, num_rounds, test_cells, pickled_objects_to_store))
+
+    conn.commit()
+    conn.close()
+
+def fetch_saved_sims_profile():
+    conn = sqlite3.connect('mab')
+    c = conn.cursor()
+    c.execute('select id, date_time, campaign_name, description from saved_sims')
+    return c.fetchall()
+
+def fetch_actual_saved_sim(id):
+    conn = sqlite3.connect('mab')
+    c = conn.cursor()
+
+    c.execute("select data, num_rounds, test_cells from saved_sims where id=?", (id,))
+    data_for_frontend = c.fetchall()
+
+    c.execute("select pickled_objects from saved_sims where id=?", (id,))
+    data_for_backend = c.fetchall()
+
+    return data_for_frontend, data_for_backend
 
 def calc_if_opened(rand_list, current_round, recipient_num, test_cell_open_rate):
-    # print(current_round, recipient_num)
-    # input()
     return 1 if rand_list[current_round][recipient_num] <= test_cell_open_rate else 0
 
 def create_random_list(num_rounds, num_members):
@@ -440,45 +496,46 @@ class Best_case_sim():
         return results
 
 if __name__=='__main__':
-    for _ in range(100):
-        test_cells = [TestCell('A', 0, .15, .25), TestCell('B', 1, .1, .25), TestCell('C', 1, .11, .25), TestCell('D', 1, .13, .25)]
-
-        test_cells_naive = copy.deepcopy(test_cells)
-        test_cells_epsilon_greedy = copy.deepcopy(test_cells)
-        test_cells_ucb1 = copy.deepcopy(test_cells)
-        test_cells_mab = copy.deepcopy(test_cells)
-        test_cells_best_case = copy.deepcopy(test_cells)
-
-        num_rounds = 100
-        num_recipients = 100
-
-        rand_list = create_random_list(num_rounds, num_recipients)
-
-        eg = Epsilon_Greedy_sim(test_cells_epsilon_greedy, num_recipients, num_rounds, rand_list)
-        eg.init_epsilon_greedy()
-        eg.allocate_members()
-
-        # print('greedy', eg.total_reward[-1])
-
-        ucb = UCB1_sim(test_cells_ucb1, num_recipients, num_rounds, rand_list)
-        ucb.init_UCB1()
-        ucb.allocate_members()
-
-        # print('ucb', ucb.total_reward[-1])
-
-        mab = MAB_sim(test_cells_mab, num_recipients, num_rounds, rand_list)
-        mab.init_mab()
-        mab.allocate_members()
-
-        # print('mab', mab.total_reward[-1])
-
-        best_case = Best_case_sim(test_cells_best_case, num_recipients, num_rounds, rand_list)
-        best_case.init_best_case()
-        best_case.run_best_case()
-
-        print( 'eg', (eg.total_reward[-1]/best_case.total_reward[-1]) * 100,
-               'ucb', (ucb.total_reward[-1]/best_case.total_reward[-1]) * 100,
-               'mab', (mab.total_reward[-1]/best_case.total_reward[-1] * 100) )
+    None
+    # for _ in range(100):
+    #     test_cells = [TestCell('A', 0, .15, .25), TestCell('B', 1, .1, .25), TestCell('C', 1, .11, .25), TestCell('D', 1, .13, .25)]
+    #
+    #     test_cells_naive = copy.deepcopy(test_cells)
+    #     test_cells_epsilon_greedy = copy.deepcopy(test_cells)
+    #     test_cells_ucb1 = copy.deepcopy(test_cells)
+    #     test_cells_mab = copy.deepcopy(test_cells)
+    #     test_cells_best_case = copy.deepcopy(test_cells)
+    #
+    #     num_rounds = 100
+    #     num_recipients = 100
+    #
+    #     rand_list = create_random_list(num_rounds, num_recipients)
+    #
+    #     eg = Epsilon_Greedy_sim(test_cells_epsilon_greedy, num_recipients, num_rounds, rand_list)
+    #     eg.init_epsilon_greedy()
+    #     eg.allocate_members()
+    #
+    #     # print('greedy', eg.total_reward[-1])
+    #
+    #     ucb = UCB1_sim(test_cells_ucb1, num_recipients, num_rounds, rand_list)
+    #     ucb.init_UCB1()
+    #     ucb.allocate_members()
+    #
+    #     # print('ucb', ucb.total_reward[-1])
+    #
+    #     mab = MAB_sim(test_cells_mab, num_recipients, num_rounds, rand_list)
+    #     mab.init_mab()
+    #     mab.allocate_members()
+    #
+    #     # print('mab', mab.total_reward[-1])
+    #
+    #     best_case = Best_case_sim(test_cells_best_case, num_recipients, num_rounds, rand_list)
+    #     best_case.init_best_case()
+    #     best_case.run_best_case()
+    #
+    #     print( 'eg', (eg.total_reward[-1]/best_case.total_reward[-1]) * 100,
+    #            'ucb', (ucb.total_reward[-1]/best_case.total_reward[-1]) * 100,
+    #            'mab', (mab.total_reward[-1]/best_case.total_reward[-1] * 100) )
 
     # print('best_case', best_case.total_reward[-1])
     #

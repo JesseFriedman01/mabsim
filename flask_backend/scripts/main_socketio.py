@@ -1,11 +1,13 @@
 from flask import Flask, jsonify, request
 from flask_socketio import SocketIO, send, emit
 from random import randrange
-from flask_backend.scripts.utils3 import TestCell, MAB_sim, Naive_sim, Best_case_sim, create_random_list
+from flask_backend.scripts.utils3 import TestCell, MAB_sim, Naive_sim, Best_case_sim, create_random_list, \
+                                         write_to_table, fetch_saved_sims_profile, fetch_actual_saved_sim
 from threading import Thread
 import json
 import time
 import copy
+import pickle
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = '_'
@@ -24,7 +26,7 @@ def createTestCellsList(test_cells_from_json):
                                         test_cell_params['id'],
                                         int(test_cell_params['open_rate'])/100,
                                         int(test_cell_params['percent_allocation'])/100)
-                               )
+        )
     return test_cells_list
 
 def createDeepCopiesOfTestCells(test_cells, num_copies):
@@ -33,10 +35,58 @@ def createDeepCopiesOfTestCells(test_cells, num_copies):
         deep_copies.append(copy.deepcopy(test_cells))
     return deep_copies
 
+@socketIo.on("save")
+def saveSim(campaign_name, sim_description, num_rounds, test_cells):
+
+    objects_to_store = {
+                       'naive': connections.get(request.sid)['naive'],
+                       'mab': connections.get(request.sid)['mab'],
+                       'optimal': connections.get(request.sid)['optimal']
+                       }
+
+    write_to_table(campaign_name,
+                   sim_description,
+                   connections.get(request.sid)['results'],
+                   num_rounds,
+                   json.dumps(test_cells),
+                   pickle.dumps(objects_to_store)
+                   )
+
+@socketIo.on("show_saved_sims")
+def showSavedSims():
+    emit('saved_sims', fetch_saved_sims_profile())
+
+@socketIo.on("select_saved_sim")
+def fetchActualSim(id):
+    # print(fetch_actual_saved_sim(id)[0][1])
+
+    data = []
+
+    data_for_frontend, data_for_backend = fetch_actual_saved_sim(id)
+
+    emit('data_for_selected_sim', data_for_frontend)
+
+    data_for_backend = pickle.loads(data_for_backend[0][0])
+
+    connections[request.sid] = {'naive': data_for_backend['naive'],
+                                'mab': data_for_backend['mab'],
+                                'optimal': data_for_backend['optimal']}
+
+
+
+    # print(data_for_backend)
+
+    #
+    #
+    # for data in data_for_backend:
+    #     print(pickle.loads(data[0]).total_reward)
+    #
+    # if data_for_frontend:
+    #     emit('saved_sims', data_for_frontend)
 
 @socketIo.on("new_mab_request")
 def handleMessage(json_request):
-
+    print(json_request)
     for key, value in json_request.items():
         if key == 'num_recipients':
             num_recipients = int(value)
@@ -72,23 +122,6 @@ def handleMessage(json_request):
     emit('progress', 100)
     thread.join()
 
-    # print(naive.output())
-    # print(best_case.output())
-
-    # results = json.loads(connections[request.sid].output())
-
-    # for key in results:
-    #     print(key,':', results[key]['allocation_percentage_history'])
-
-    # for key in json.loads(connections[request.sid].output()):
-    #     print('dfdf', key)
-    # print(connections[request.sid].output())
-
-    # results = json.dumps(
-    #            {'naive': connections[request.sid]['naive'].output(),
-    #            'mab': connections[request.sid]['mab'].output(),
-    #            'best_case': connections[request.sid]['best_case'].output()})
-
     results = json.dumps(
         {
             'Summary Data': {'optimal': connections[request.sid]['optimal'].output()['Summary Data'],
@@ -99,8 +132,7 @@ def handleMessage(json_request):
         }
     )
 
-    # print(results)
-
+    connections[request.sid]['results'] = results
     emit('new_results', results)
 
 def modifyTestCells(existing_test_cells, test_cells_from_json):
@@ -124,7 +156,6 @@ def handleMessage(json_request):
     existing_naive_object.curr_round = json_request['current_round']
     existing_MAB_object.curr_round = json_request['current_round']
     existing_optimal_object.curr_round = json_request['current_round']
-    # existing_MAB_object.test_cells = createTestCellsList(json_request['test_cells'])
 
     modifyTestCells(existing_naive_object.test_cells, json_request['test_cells'])
     modifyTestCells(existing_MAB_object.test_cells, json_request['test_cells'])
@@ -141,11 +172,6 @@ def handleMessage(json_request):
     emit('progress', 100)
     thread.join()
 
-    # results = json.dumps(
-    #            {'naive': connections[request.sid]['naive'].output(),
-    #            'mab': existing_MAB_object.output(),
-    #            'best_case': connections[request.sid]['best_case'].output()})
-
     results = json.dumps(
         {
             'Summary Data': {'optimal': existing_optimal_object.output()['Summary Data'],
@@ -156,6 +182,7 @@ def handleMessage(json_request):
         }
     )
 
+    connections[request.sid]['results'] = results
     emit('new_results', results)
 
 # @socketIo.on('disconnect')
