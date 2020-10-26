@@ -139,13 +139,14 @@ class ChartGrid extends React.Component {
                           style={{overflow: 'hidden'}}
                           boxShadow={2}
                         >
-                            <PlotChart
+                           <PlotChart
                                 current_round={this.state.current_round}
                                 num_rounds={this.state.num_rounds}
                                 API_output={this.getDataToPlot(item.data_type, item.parent_key)}
                                 data_to_plot={item.data_to_plot}
                                 chart_title={item.chart_title}
                                 x_axis_title={item.x_axis_title}
+                                x_axis_range={item.x_axis_range}
                                 y_axis_title={item.y_axis_title}
                                 y_axis_range={item.y_axis_range}
                                 width={item.width}
@@ -160,7 +161,9 @@ class ChartGrid extends React.Component {
                     )}
                 </GridLayout>
             </div>
+
         )
+
   }
 }
 

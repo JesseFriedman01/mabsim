@@ -11,6 +11,7 @@ import TextField from '@material-ui/core/TextField';
 import TestCell from '../Testcell'
 import ErrorIcon from '@material-ui/icons/Error';
 import CampaignSummary from './campaignSummary';
+import Modal from '@material-ui/core/Modal';
 
 const useStyles = makeStyles((theme) => ({
   main: {
@@ -206,6 +207,7 @@ export default function HorizontalLinearStepper(props) {
   }
 
   return (
+
         <Grid className={classes.main}>
           <Grid item className={classes.stepper}>
             <div className={classes.title_box}>
@@ -245,5 +247,6 @@ export default function HorizontalLinearStepper(props) {
               </Box>
             </Grid>
          </Grid>
+
   );
 }

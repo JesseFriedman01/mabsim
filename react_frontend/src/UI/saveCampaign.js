@@ -6,11 +6,6 @@ import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
 import Divider from '@material-ui/core/Divider';
 
-//import io from 'socket.io-client';
-//
-//const endPoint = "http://localhost:5000";
-//const socket = io.connect(`${endPoint}`);
-
 const useStyles = makeStyles((theme) => ({
   main: {
     display: 'flex',
@@ -48,7 +43,8 @@ export default function SaveCampaign(props) {
   const classes = useStyles();
 
   const [open, setOpen] = React.useState(true);
-  const [simDescription, setSimDescription] = React.useState(null);
+  const [campaignName, setCampaignName] = React.useState(props.campaignName);
+  const [simDescription, setSimDescription] = React.useState(props.simDescription);
 
   const handleOpen = () => {
     setOpen(true);
@@ -60,7 +56,7 @@ export default function SaveCampaign(props) {
   };
 
   const handleSave = () => {
-    props.socket.emit("save", props.campaignName, simDescription, props.numRounds, props.testCells)
+    props.socket.emit("save", campaignName, simDescription, props.numRounds, props.testCells)
     props.setSideDrawerShouldBeOpen(false)
     props.setShowSaveWindow(false)
     setOpen(false)
@@ -75,11 +71,11 @@ export default function SaveCampaign(props) {
                 </div>
                 <div style={{marginLeft:'10px', marginRight:'10px'}}>
                     <TextField
-                      inputProps={{readOnly:true}}
                       className={classes.text_field}
                       id="simName"
                       label="Sim Name"
-                      value={props.campaignName}
+                      defaultValue={props.campaignName}
+                      onChange={event => setCampaignName(event.target.value)}
                      />
                      <TextField
                       className={classes.text_field}
@@ -88,6 +84,7 @@ export default function SaveCampaign(props) {
                       id="description"
                       label="Description (optional)"
                       variant="filled"
+                      defaultValue={props.simDescription}
                       onChange={event => setSimDescription(event.target.value)}
                      />
                 </div>

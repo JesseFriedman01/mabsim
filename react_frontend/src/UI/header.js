@@ -12,6 +12,8 @@ import Box from '@material-ui/core/Box';
 import ButtonGroup from '@material-ui/core/ButtonGroup';
 import Button from '@material-ui/core/Button';
 import SideDrawer from './sideDrawer'
+import logo from '../MABlogoBasic_white.png'
+import HomeIcon from '@material-ui/icons/Home';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -61,6 +63,7 @@ export default function Header(props) {
     setOpenSideBar(status)
   }
 
+
   return (
     <div className={classes.root}>
       <Box pb={3}>
@@ -75,15 +78,17 @@ export default function Header(props) {
             >
                 <MenuIcon />
             </IconButton>
-            <Typography className={classes.title} />
-            {props.disableTestCellButton === false ?
-                <Button variant="contained"
-                        style={{backgroundColor:"#ffffff"}}
-                        onClick={toggleDrawer()}
+            {window.location.pathname !== '/' ?
+                <IconButton
+                    edge="start"
+                    color="inherit"
+                    component={Link} to="/"
                 >
-                  Modify Open Rates
-                </Button>:null
-             }
+                    <HomeIcon />
+                </IconButton>: null
+            }
+            <Typography className={classes.title} />
+
         </Toolbar>
       </AppBar>
       </Box>
@@ -100,9 +105,13 @@ export default function Header(props) {
         numRounds={props.numRounds}
         setNumRounds={props.setNumRounds}
         campaignName={props.campaignName}
-        setCampaignName={props.getCampaignName}
+        setCampaignName={props.setCampaignName}
         testCells={props.testCells}
         setTestCells={props.setTestCells}
+        disableTestCellButton = {props.disableTestCellButton}
+        getTestCellDrawerClicked = {props.getTestCellDrawerClicked}
+        simDescription={props.simDescription}
+        setSimDescription={props.setSimDescription}
       />
     </div>
   );

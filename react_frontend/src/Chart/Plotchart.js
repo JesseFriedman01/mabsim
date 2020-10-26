@@ -140,7 +140,7 @@ class PlotChart extends Component {
                          title: this.state.chart_title,
                          xaxis:{
                                 title: this.state.x_axis_title,
-                                range:[0, parseInt(this.state.num_rounds)-1],
+                                range: this.props.x_axis_range ? this.props.x_axis_range : [0, parseInt(this.state.num_rounds)],
                                 fixedrange: true
                                 },
                          yaxis:{

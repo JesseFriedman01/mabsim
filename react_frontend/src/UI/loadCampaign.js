@@ -8,6 +8,7 @@ import { DataGrid } from '@material-ui/data-grid';
 import LoadCampaignTable from './loadCampaignTable';
 import Divider from '@material-ui/core/Divider';
 import {Link} from "react-router-dom"
+import CircularProgress from '@material-ui/core/CircularProgress';
 
 const useStyles = makeStyles((theme) => ({
   main: {
@@ -38,6 +39,12 @@ const useStyles = makeStyles((theme) => ({
     marginBottom:"20px"
   },
   button_div:{
+    padding: theme.spacing(2)
+  },
+  spinner_div:{
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
     padding: theme.spacing(2)
   }
 }));
@@ -70,18 +77,26 @@ export default function LoadCampaign(props) {
   const loadData = () => {
     props.socket.emit("select_saved_sim", itemSelectedFromTable)
     props.socket.on('data_for_selected_sim', (result) => {
-        props.setNumRounds(parseInt(result[0][1]))
+        const numRounds = parseInt(result[0][1])
+        props.setNumRounds(numRounds)
+        localStorage.setItem('current_round', numRounds - 1);
         props.setAPIData(JSON.parse(result[0][0]))
         props.setTestCells(JSON.parse(result[0][2]))
+        props.setCampaignName(result[0][3])
+        props.setSimDescription(result[0][4])
     });
 
-    localStorage.setItem('current_round', 0);
-
     props.setShowLoadWindow(false)
-    props.setSideDrawerShouldBeOpen(false)
+
+    if (props.setSideDrawerShouldBeOpen)
+        props.setSideDrawerShouldBeOpen(false)
 
     if (dataFromTableToLoadSim)
         props.socket.off()
+  }
+
+  const test = () =>{
+    console.log('dfdf')
   }
 
   return (
@@ -92,10 +107,14 @@ export default function LoadCampaign(props) {
                     Load Sim
                 </div>
                 {dataForTable ?
-                <div style={{marginLeft:'10px', marginRight:'10px'}}>
-                    <LoadCampaignTable dataForTable={dataForTable} setItemSelectedFromTable={setItemSelectedFromTable}/>
-                </div>
-                : null}
+                    <div style={{marginLeft:'10px', marginRight:'10px'}}>
+                        <LoadCampaignTable dataForTable={dataForTable} setItemSelectedFromTable={setItemSelectedFromTable}/>
+                    </div>
+                    :
+                    <div className={classes.spinner_div}>
+                        <CircularProgress color="primary" />
+                    </div>
+                }
                 <Divider />
                 <div className={classes.button_div}>
                     <Button variant="text" onClick={handleClose}>Cancel</Button>
@@ -108,9 +127,7 @@ export default function LoadCampaign(props) {
                     </Button>
                 </div>
             </div>
-
         </div>
-
    </Modal>
   );
 }

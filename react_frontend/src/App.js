@@ -34,7 +34,9 @@ class App extends Component {
             disable_test_cell_button: true,
             test_cell_drawer_button_clicked: null,
             test_cell_drawer_open: false,
-            pause_slider: false
+            pause_slider: true,
+            side_drawer_open: false,
+            sim_description: null
         };
 
         this.getCampaignName = this.getCampaignName.bind(this);
@@ -47,6 +49,7 @@ class App extends Component {
         this.getTestCellButtonVisible = this.getTestCellButtonVisible.bind(this);
         this.getTestCellDrawerClicked = this.getTestCellDrawerClicked.bind(this);
         this.getCurrentRound = this.getCurrentRound.bind(this);
+        this.getSimDescription = this.getSimDescription.bind(this);
     }
 
     getCampaignName(data){
@@ -102,12 +105,22 @@ class App extends Component {
         this.setState({ current_round: data })
     }
 
+    getOpenSideDrawer(data){
+        this.setState({side_drawer_open:data})
+    }
+
+    getSimDescription(data){
+        this.setState({sim_description:data})
+    }
+
     render(){
         return (
             <ThemeProvider theme={theme}>
             <CssBaseline />
             <BrowserRouter>
-                <Header getStatus={this.getStatus}
+                <Header openSideDrawer={this.state.side_drawer_open}
+                        setOpenSideDrawer={this.getOpenSideDrawer}
+                        getStatus={this.getStatus}
                         disableTestCellButton={this.state.disable_test_cell_button}
                         getTestCellDrawerClicked={this.getTestCellDrawerClicked}
                         getTestCellButtonVisible={this.getTestCellButtonVisible}
@@ -117,26 +130,32 @@ class App extends Component {
                         numRounds={this.state.num_rounds}
                         setNumRounds={this.getNumRounds}
                         campaignName={this.state.campaign_name}
-                        setCampaignName={this.state.getCampaignName}
+                        setCampaignName={this.getCampaignName}
                         testCells={this.state.test_cells}
                         setTestCells={this.getTestCells}
+                        simDescription={this.state.sim_description}
+                        setSimDescription={this.getSimDescription}
                 />
 
                <Switch>
 
-                    <Route exact path="/" component={() => <Home />} />
-
-                    <Route exact path="/load" component={() => <div>Under Construction</div>} />
+                    <Route exact path="/" component={() =>
+                        <Home
+                            endPoint={endPoint}
+                            socket={socket}
+                            setAPIData={this.getAPIData}
+                            setNumRounds={this.getNumRounds}
+                            setCampaignName={this.state.getCampaignName}
+                            setTestCells={this.getTestCells}/>}
+                        />
 
                     { this.state.api_data ?
                         <Route exact path="/charts" component={() =>
-                                [
-                                    <ChartGrid
-                                        API_output={this.state.api_data}
-                                        num_rounds={this.state.num_rounds}
-                                        pause_slider={this.state.pause_slider}
-                                    />
-                                ]
+                                <ChartGrid
+                                    API_output={this.state.api_data}
+                                    num_rounds={this.state.num_rounds}
+                                    pause_slider={this.state.pause_slider}
+                                />
                             }
                          /> : null
                      }

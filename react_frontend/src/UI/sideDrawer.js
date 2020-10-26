@@ -48,6 +48,7 @@ const useStyles = makeStyles((theme) => ({
 export default function SideDrawer(props) {
     const [shouldBeOpen, setShouldBeOpen] = React.useState(props.openSideBar)
     const [gettingStartedOpen, setGettingStartedOpen] = React.useState(false)
+    const [simOptionsOpen, setSimOptionsOpen] = React.useState(false)
     const [showSaveWindow, setShowSaveWindow] = React.useState(false)
     const [showLoadWindow, setShowLoadWindow] = React.useState(false)
 
@@ -73,6 +74,10 @@ export default function SideDrawer(props) {
         setGettingStartedOpen(!gettingStartedOpen);
     };
 
+    const handleSimOptionsClick = () => {
+        setSimOptionsOpen(!simOptionsOpen);
+    };
+
     const handleSaveClick = () => {
         setShowSaveWindow(true)
     };
@@ -81,10 +86,16 @@ export default function SideDrawer(props) {
         setShowLoadWindow(true)
     };
 
+    const toggleDrawer = () => () => {
+        props.getTestCellDrawerClicked(true)
+        setShouldBeOpen(false)
+        props.setOpenSideBar(false)
+    };
+
     return (
         <>
          {showSaveWindow===true ? <SaveCampaign
-                                    campaignName={props.campaignName}
+                                    setCampaignName={props.setCampaignName}
                                     setShowSaveWindow={setShowSaveWindow}
                                     setSideDrawerShouldBeOpen={props.setOpenSideBar}
                                     endPoint={props.endPoint}
@@ -92,11 +103,12 @@ export default function SideDrawer(props) {
                                     numRounds={props.numRounds}
                                     campaignName={props.campaignName}
                                     testCells={props.testCells}
+                                    simDescription={props.simDescription}
                                   />
                                   : null
          }
          {showLoadWindow===true ? <LoadCampaign
-                                    campaignName={props.campaignName}
+                                    setCampaignName={props.setCampaignName}
                                     setShowLoadWindow={setShowLoadWindow}
                                     setSideDrawerShouldBeOpen={props.setOpenSideBar}
                                     endPoint={props.endPoint}
@@ -104,6 +116,7 @@ export default function SideDrawer(props) {
                                     setAPIData={props.setAPIData}
                                     setNumRounds={props.setNumRounds}
                                     setTestCells={props.setTestCells}
+                                    setSimDescription={props.setSimDescription}
                                    />
                                   : null
          }
@@ -133,21 +146,30 @@ export default function SideDrawer(props) {
                         </List>
                      </Collapse>
                   </List>
+
                   <Divider />
+
                   <List component="nav">
-                    <ListItem button onClick={handleMenuClick} component={Link} to="/create">
-                      <ListItemText disableTypography className={classes.mainListItem} primary="Create Sim" />
-                     </ListItem>
-                    <ListItem button onClick={handleLoadClick}>
-                      <ListItemText disableTypography
-                        className={classes.mainListItem}
-                        primary="Load Sim" />
-                    </ListItem>
-                    <ListItem button onClick={handleSaveClick} disabled={props.disableSaveButton}>
-                      <ListItemText disableTypography
-                        className={classes.mainListItem}
-                        primary="Save Sim" />
-                    </ListItem>
+                      <ListItem button onClick={handleSimOptionsClick}>
+                          <ListItemText disableTypography className={classes.mainListItem} primary="Sim Options"/>
+                           {simOptionsOpen ? <ExpandLess /> : <ExpandMore />}
+                      </ListItem>
+                      <Collapse in={simOptionsOpen} timeout="auto" unmountOnExit>
+                          <List component="div" disablePadding>
+                            <ListItem button onClick={handleMenuClick} component={Link} to="/create" className={classes.nestedListItem}>
+                              <ListItemText disableTypography primary="Create" />
+                            </ListItem>
+                            <ListItem button onClick={handleLoadClick} className={classes.nestedListItem}>
+                              <ListItemText disableTypography primary="Load" />
+                            </ListItem>
+                            <ListItem button disabled={props.disableTestCellButton} onClick={toggleDrawer()} className={classes.nestedListItem}>
+                              <ListItemText disableTypography primary="Modify" />
+                            </ListItem>
+                            <ListItem button onClick={handleSaveClick} disabled={props.disableSaveButton} className={classes.nestedListItem}>
+                              <ListItemText disableTypography primary="Save" />
+                            </ListItem>
+                          </List>
+                      </Collapse>
                   </List>
 
                 </div>

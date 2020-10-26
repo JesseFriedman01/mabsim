@@ -105,6 +105,7 @@ export const getChartSpecs = (chart_width, chart_height, margin) => {
           'data_to_plot': 'beta_distribution',
           'chart_title': 'Beta distribution',
           'x_axis_title': 'Open Rate',
+          'x_axis_range': [0, 100],
           'x_pos': 0,
           'y_pos': 2,
           'width': chart_width * 2,
