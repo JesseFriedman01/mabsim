@@ -7,18 +7,18 @@ import sqlite3
 from sqlite3 import Error
 import json
 
-def connect_to_db():
-    # print('object', mab_object)
-    conn = None
-    try:
-        conn = sqlite3.connect('mab')
-        print(sqlite3.version)
-    except Error as e:
-        print(e)
-    # finally:
-    #     if conn:
-    #         conn.close()
-    return conn
+# def connect_to_db():
+#     # print('object', mab_object)
+#     conn = None
+#     try:
+#         conn = sqlite3.connect('mab')
+#         print(sqlite3.version)
+#     except Error as e:
+#         print(e)
+#     # finally:
+#     #     if conn:
+#     #         conn.close()
+#     return conn
 
 def write_to_table(campaign_name, sim_description, sim_results, num_rounds, test_cells, pickled_objects_to_store):
     conn = sqlite3.connect('mab')
@@ -54,10 +54,10 @@ def fetch_actual_saved_sim(id):
     conn = sqlite3.connect('mab')
     c = conn.cursor()
 
-    c.execute("select data, num_rounds, test_cells from saved_sims where id=?", (id,))
+    c.execute("select data, num_rounds, test_cells, campaign_name, description from saved_sims where id=?", (id,))
     data_for_frontend = c.fetchall()
 
-    c.execute("select pickled_objects from saved_sims where id=?", (id,))
+    c.execute("select pickled_objects, data from saved_sims where id=?", (id,))
     data_for_backend = c.fetchall()
 
     return data_for_frontend, data_for_backend

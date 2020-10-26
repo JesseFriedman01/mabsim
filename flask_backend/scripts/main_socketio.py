@@ -58,31 +58,21 @@ def showSavedSims():
 
 @socketIo.on("select_saved_sim")
 def fetchActualSim(id):
-    # print(fetch_actual_saved_sim(id)[0][1])
-
-    data = []
-
     data_for_frontend, data_for_backend = fetch_actual_saved_sim(id)
 
     emit('data_for_selected_sim', data_for_frontend)
 
-    data_for_backend = pickle.loads(data_for_backend[0][0])
+    objects_for_backend = pickle.loads(data_for_backend[0][0])
+    results_for_backend = data_for_backend[0][1]
 
-    connections[request.sid] = {'naive': data_for_backend['naive'],
-                                'mab': data_for_backend['mab'],
-                                'optimal': data_for_backend['optimal']}
+    # print(data_for_backend[0][1])
 
+    connections[request.sid] = {'naive': objects_for_backend['naive'],
+                                'mab': objects_for_backend['mab'],
+                                'optimal': objects_for_backend['optimal'],
+                                'results': results_for_backend
+                                }
 
-
-    # print(data_for_backend)
-
-    #
-    #
-    # for data in data_for_backend:
-    #     print(pickle.loads(data[0]).total_reward)
-    #
-    # if data_for_frontend:
-    #     emit('saved_sims', data_for_frontend)
 
 @socketIo.on("new_mab_request")
 def handleMessage(json_request):
