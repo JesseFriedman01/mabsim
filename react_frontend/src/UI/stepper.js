@@ -12,12 +12,14 @@ import TestCell from '../Testcell'
 import ErrorIcon from '@material-ui/icons/Error';
 import CampaignSummary from './campaignSummary';
 import Modal from '@material-ui/core/Modal';
+import { Redirect } from 'react-router-dom';
 
 const useStyles = makeStyles((theme) => ({
   main: {
-    width: '70%',
-    marginLeft: "15%",
-    marginRight: "15%",
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    height:'100vh',
   },
   root: {
     width: '100%',
@@ -88,8 +90,16 @@ export default function HorizontalLinearStepper(props) {
   const [errorMsg, setErrorMsg] = React.useState(null);
   const [testCellInterval, setTestCellInterval] = React.useState(2)
   const [isAutoAllocate, setIsAutoAllocate] = React.useState(true)
+  const [open, setOpen] = React.useState(true);
+  const [isComplete, setIsComplete] = React.useState(null);
+
+  const handleOpen = () => {
+    setOpen(true);
+  };
 
   const submitData = () => {
+    setOpen(false)
+    setIsComplete(<Redirect to='/charts' />)
     props.getCampaignName(campaignName)
     props.getNumRecipients(numRecipients)
     props.getNumRounds(numRounds)
@@ -207,46 +217,49 @@ export default function HorizontalLinearStepper(props) {
   }
 
   return (
-
-        <Grid className={classes.main}>
-          <Grid item className={classes.stepper}>
-            <div className={classes.title_box}>
-                Create Sim
-            </div>
-            <Box boxShadow={1} pl={5} pb={5} pr={6} >
-                <div className={classes.root}>
-                  <Stepper activeStep={activeStep} className={classes.stepper}>
-                    {steps.map((label, index) => {
-                      const stepProps = {};
-                      const labelProps = {};
-                      return (
-                        <Step key={label} {...stepProps}>
-                          <StepLabel {...labelProps}>{label}</StepLabel>
-                        </Step>
-                      );
-                    })}
-                  </Stepper>
-                    <div>
-                        <Typography className={classes.instructions}>{getStepContent(activeStep)}</Typography>
-                        {errorMsg}
-                        <div>
-                        <Button disabled={activeStep === 0} onClick={handleBack} className={classes.button}>
-                            Back
-                        </Button>
-                        <Button
-                            variant="contained"
-                            color="primary"
-                            onClick={handleNext}
-                            className={classes.button}
-                          >
-                           {activeStep === steps.length - 1 ? 'Finish' : 'Next'}
-                        </Button>
-                   </div>
-                  </div>
+        <>
+        {isComplete}
+        <Modal open={open} id='modal'>
+            <Grid className={classes.main}>
+              <Grid item className={classes.stepper}>
+                <div className={classes.title_box}>
+                    Create Sim
                 </div>
-              </Box>
-            </Grid>
-         </Grid>
-
+                <Box boxShadow={1} pl={5} pb={5} pr={6} >
+                    <div className={classes.root}>
+                      <Stepper activeStep={activeStep} className={classes.stepper}>
+                        {steps.map((label, index) => {
+                          const stepProps = {};
+                          const labelProps = {};
+                          return (
+                            <Step key={label} {...stepProps}>
+                              <StepLabel {...labelProps}>{label}</StepLabel>
+                            </Step>
+                          );
+                        })}
+                      </Stepper>
+                        <div>
+                            <Typography className={classes.instructions}>{getStepContent(activeStep)}</Typography>
+                            {errorMsg}
+                            <div>
+                            <Button disabled={activeStep === 0} onClick={handleBack} className={classes.button}>
+                                Back
+                            </Button>
+                            <Button
+                                variant="contained"
+                                color="primary"
+                                onClick={handleNext}
+                                className={classes.button}
+                             >
+                               {activeStep === steps.length - 1 ? 'Finish' : 'Next'}
+                            </Button>
+                       </div>
+                      </div>
+                    </div>
+                  </Box>
+                </Grid>
+             </Grid>
+         </Modal>
+         </>
   );
 }

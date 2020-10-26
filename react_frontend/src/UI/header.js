@@ -31,7 +31,7 @@ export default function Header(props) {
 
   const classes = useStyles();
   const [anchorEl, setAnchorEl] = React.useState(null);
-  const [openSideBar, setOpenSideBar] = React.useState(false);
+  const [openSideDrawer, setOpenSideDrawer] = React.useState(false);
   const [disableTestCellButton, setDisableTestCellButton] = React.useState(props.disableTestCellButton)
   const [campaignName, setCampaignName] = React.useState(props.campaignName)
   const open = Boolean(anchorEl);
@@ -48,7 +48,7 @@ export default function Header(props) {
 
   const handleMenu = (event) => {
     setAnchorEl(event.currentTarget);
-    setOpenSideBar(true)
+    setOpenSideDrawer(true)
   };
 
   const handleMenuClose = () => {
@@ -60,7 +60,7 @@ export default function Header(props) {
   };
 
   const getSideDrawerStatus = (status) => {
-    setOpenSideBar(status)
+    setOpenSideDrawer(status)
   }
 
 
@@ -93,9 +93,9 @@ export default function Header(props) {
       </AppBar>
       </Box>
       <SideDrawer
-        openSideBar={openSideBar}
-        setOpenSideBar={setOpenSideBar}
-        setStatus={getSideDrawerStatus}
+        openSideDrawer={openSideDrawer}
+        setOpenSideDrawer={setOpenSideDrawer}
+        setSideDrawerStatus={getSideDrawerStatus}
         setDisableTestCellButton={setDisableTestCellButton}
         getTestCellButtonVisible={props.getTestCellButtonVisible}
         disableSaveButton={props.disableTestCellButton}
@@ -112,6 +112,8 @@ export default function Header(props) {
         getTestCellDrawerClicked = {props.getTestCellDrawerClicked}
         simDescription={props.simDescription}
         setSimDescription={props.setSimDescription}
+        setSimStatus={props.setStatus}
+        setNumRecipients={props.setNumRecipients}
       />
     </div>
   );

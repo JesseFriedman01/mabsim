@@ -29,6 +29,7 @@ const useStyles = makeStyles((theme) => ({
 
 export default function Home(props) {
     const [showLoadWindow, setShowLoadWindow] = React.useState(false)
+    const [showCreateWindow, setShowCreateWindow] = React.useState(false)
 
     const classes = useStyles();
 

@@ -95,10 +95,6 @@ export default function LoadCampaign(props) {
         props.socket.off()
   }
 
-  const test = () =>{
-    console.log('dfdf')
-  }
-
   return (
    <Modal open={open} onClose={handleClose}>
         <div className={classes.main}>

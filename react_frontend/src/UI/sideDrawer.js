@@ -17,6 +17,7 @@ import ExpandMore from '@material-ui/icons/ExpandMore';
 import Collapse from '@material-ui/core/Collapse';
 import SaveCampaign from './saveCampaign';
 import LoadCampaign from './loadCampaign';
+import HorizontalLinearStepper from './stepper'
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -49,23 +50,24 @@ export default function SideDrawer(props) {
     const [shouldBeOpen, setShouldBeOpen] = React.useState(props.openSideBar)
     const [gettingStartedOpen, setGettingStartedOpen] = React.useState(false)
     const [simOptionsOpen, setSimOptionsOpen] = React.useState(false)
+    const [showCreateWindow, setShowCreateWindow] = React.useState(false)
     const [showSaveWindow, setShowSaveWindow] = React.useState(false)
     const [showLoadWindow, setShowLoadWindow] = React.useState(false)
 
     const classes = useStyles();
 
     useEffect(() => {
-      setShouldBeOpen(props.openSideBar);
-    }, [props.openSideBar]);
+      setShouldBeOpen(props.openSideDrawer);
+    }, [props.openSideDrawer]);
 
     const handleCloseClickAway = () => {
         setShouldBeOpen(false)
-        props.setStatus(false)
+        props.setSideDrawerStatus(false)
     }
 
     const handleMenuClick = () => {
         setShouldBeOpen(false)
-        props.setStatus(false)
+        props.setSideDrawerStatus(false)
         props.setDisableTestCellButton(true)
         props.getTestCellButtonVisible(true)
     }
@@ -86,37 +88,50 @@ export default function SideDrawer(props) {
         setShowLoadWindow(true)
     };
 
+    const handleCreateClick = () => {
+        setShowCreateWindow(true)
+    }
+
     const toggleDrawer = () => () => {
         props.getTestCellDrawerClicked(true)
         setShouldBeOpen(false)
-        props.setOpenSideBar(false)
+        props.setOpenSideDrawer(false)
     };
 
     return (
         <>
+         {showCreateWindow===true ? <HorizontalLinearStepper
+                                     getCampaignName={props.setCampaignName}
+                                     getNumRecipients={props.setNumRecipients}
+                                     getNumRounds={props.setNumRounds}
+                                     getTestCells={props.setTestCells}
+                                     getStatus={props.setSimStatus}
+                                    />
+                                  : null
+         }
          {showSaveWindow===true ? <SaveCampaign
-                                    setCampaignName={props.setCampaignName}
-                                    setShowSaveWindow={setShowSaveWindow}
-                                    setSideDrawerShouldBeOpen={props.setOpenSideBar}
-                                    endPoint={props.endPoint}
-                                    socket={props.socket}
-                                    numRounds={props.numRounds}
-                                    campaignName={props.campaignName}
-                                    testCells={props.testCells}
-                                    simDescription={props.simDescription}
+                                   setCampaignName={props.setCampaignName}
+                                   setShowSaveWindow={setShowSaveWindow}
+                                   setSideDrawerShouldBeOpen={props.setOpenSideDrawer}
+                                   endPoint={props.endPoint}
+                                   socket={props.socket}
+                                   numRounds={props.numRounds}
+                                   campaignName={props.campaignName}
+                                   testCells={props.testCells}
+                                   simDescription={props.simDescription}
                                   />
                                   : null
          }
          {showLoadWindow===true ? <LoadCampaign
-                                    setCampaignName={props.setCampaignName}
-                                    setShowLoadWindow={setShowLoadWindow}
-                                    setSideDrawerShouldBeOpen={props.setOpenSideBar}
-                                    endPoint={props.endPoint}
-                                    socket={props.socket}
-                                    setAPIData={props.setAPIData}
-                                    setNumRounds={props.setNumRounds}
-                                    setTestCells={props.setTestCells}
-                                    setSimDescription={props.setSimDescription}
+                                   setCampaignName={props.setCampaignName}
+                                   setShowLoadWindow={setShowLoadWindow}
+                                   setSideDrawerShouldBeOpen={props.setOpenSideDrawer}
+                                   endPoint={props.endPoint}
+                                   socket={props.socket}
+                                   setAPIData={props.setAPIData}
+                                   setNumRounds={props.setNumRounds}
+                                   setTestCells={props.setTestCells}
+                                   setSimDescription={props.setSimDescription}
                                    />
                                   : null
          }
@@ -156,7 +171,7 @@ export default function SideDrawer(props) {
                       </ListItem>
                       <Collapse in={simOptionsOpen} timeout="auto" unmountOnExit>
                           <List component="div" disablePadding>
-                            <ListItem button onClick={handleMenuClick} component={Link} to="/create" className={classes.nestedListItem}>
+                            <ListItem button onClick={handleCreateClick} className={classes.nestedListItem}>
                               <ListItemText disableTypography primary="Create" />
                             </ListItem>
                             <ListItem button onClick={handleLoadClick} className={classes.nestedListItem}>

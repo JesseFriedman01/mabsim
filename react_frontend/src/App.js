@@ -118,59 +118,48 @@ class App extends Component {
             <ThemeProvider theme={theme}>
             <CssBaseline />
             <BrowserRouter>
-                <Header openSideDrawer={this.state.side_drawer_open}
-                        setOpenSideDrawer={this.getOpenSideDrawer}
-                        getStatus={this.getStatus}
-                        disableTestCellButton={this.state.disable_test_cell_button}
-                        getTestCellDrawerClicked={this.getTestCellDrawerClicked}
-                        getTestCellButtonVisible={this.getTestCellButtonVisible}
-                        endPoint={endPoint}
-                        socket={socket}
-                        setAPIData={this.getAPIData}
-                        numRounds={this.state.num_rounds}
-                        setNumRounds={this.getNumRounds}
-                        campaignName={this.state.campaign_name}
-                        setCampaignName={this.getCampaignName}
-                        testCells={this.state.test_cells}
-                        setTestCells={this.getTestCells}
-                        simDescription={this.state.sim_description}
-                        setSimDescription={this.getSimDescription}
+                <Header
+                 openSideDrawer={this.state.side_drawer_open}
+                 setOpenSideDrawer={this.getOpenSideDrawer}
+                 setStatus={this.getStatus}
+                 disableTestCellButton={this.state.disable_test_cell_button}
+                 getTestCellDrawerClicked={this.getTestCellDrawerClicked}
+                 getTestCellButtonVisible={this.getTestCellButtonVisible}
+                 endPoint={endPoint}
+                 socket={socket}
+                 setAPIData={this.getAPIData}
+                 numRounds={this.state.num_rounds}
+                 setNumRounds={this.getNumRounds}
+                 campaignName={this.state.campaign_name}
+                 setCampaignName={this.getCampaignName}
+                 testCells={this.state.test_cells}
+                 setTestCells={this.getTestCells}
+                 simDescription={this.state.sim_description}
+                 setSimDescription={this.getSimDescription}
+                 setNumRecipients={this.getNumRecipients}
                 />
 
                <Switch>
-
                     <Route exact path="/" component={() =>
                         <Home
-                            endPoint={endPoint}
-                            socket={socket}
-                            setAPIData={this.getAPIData}
-                            setNumRounds={this.getNumRounds}
-                            setCampaignName={this.state.getCampaignName}
-                            setTestCells={this.getTestCells}/>}
+                         endPoint={endPoint}
+                         socket={socket}
+                         setAPIData={this.getAPIData}
+                         setNumRounds={this.getNumRounds}
+                         setCampaignName={this.state.getCampaignName}
+                         setTestCells={this.getTestCells}/>}
                         />
 
                     { this.state.api_data ?
                         <Route exact path="/charts" component={() =>
-                                <ChartGrid
-                                    API_output={this.state.api_data}
-                                    num_rounds={this.state.num_rounds}
-                                    pause_slider={this.state.pause_slider}
-                                />
-                            }
-                         /> : null
+                            <ChartGrid
+                             API_output={this.state.api_data}
+                             num_rounds={this.state.num_rounds}
+                             pause_slider={this.state.pause_slider}
+                            />
+                         }/> : null
                      }
 
-                    { this.state.status !== 'data collected' ?
-                        <Route exact path="/create" component={() =>
-                            <HorizontalLinearStepper
-                            getCampaignName={this.getCampaignName}
-                            getNumRecipients={this.getNumRecipients}
-                            getNumRounds={this.getNumRounds}
-                            getTestCells={this.getTestCells}
-                            getStatus={this.getStatus}
-                            />}
-                        /> :<Redirect to='/charts' />
-                    }
                 </Switch>
             </BrowserRouter>
 
@@ -180,30 +169,30 @@ class App extends Component {
 
             { this.state.status === 'data collected' ?
                 <APIFetch
-                         getAPIData={this.getAPIData}
-                         getAPIProgress={this.getAPIProgress}
-                         name={'Submit'}
-                         test_cell_list={this.state.test_cells}
-                         num_rounds={this.state.num_rounds}
-                         num_recipients={this.state.num_recipients}
-                         getStatus={this.getStatus}
-                         endPoint={endPoint}
-                         socket={socket}/>
+                 getAPIData={this.getAPIData}
+                 getAPIProgress={this.getAPIProgress}
+                 name={'Submit'}
+                 test_cell_list={this.state.test_cells}
+                 num_rounds={this.state.num_rounds}
+                 num_recipients={this.state.num_recipients}
+                 getStatus={this.getStatus}
+                 endPoint={endPoint}
+                 socket={socket}/>
                 :null
             }
 
             { this.state.status === 'modify test cells' ?
                 <APIFetch
-                         getAPIData={this.getAPIData}
-                         getAPIProgress={this.getAPIProgress}
-                         name={'Fluctuate'}
-                         test_cell_list={this.state.test_cells}
-                         num_rounds={this.state.num_rounds}
-                         num_recipients={this.state.num_recipients}
-                         current_round={parseInt(localStorage.getItem('current_round'))}
-                         getStatus={this.getStatus}
-                         endPoint={endPoint}
-                         socket={socket}/>
+                 getAPIData={this.getAPIData}
+                 getAPIProgress={this.getAPIProgress}
+                 name={'Fluctuate'}
+                 test_cell_list={this.state.test_cells}
+                 num_rounds={this.state.num_rounds}
+                 num_recipients={this.state.num_recipients}
+                 current_round={parseInt(localStorage.getItem('current_round'))}
+                 getStatus={this.getStatus}
+                 endPoint={endPoint}
+                 socket={socket}/>
                 :null
             }
 
@@ -222,6 +211,5 @@ class App extends Component {
         );
     }
 }
-
 
 export default App;
