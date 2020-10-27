@@ -76,7 +76,7 @@ def fetchActualSim(id):
 
 @socketIo.on("new_mab_request")
 def handleMessage(json_request):
-    print(json_request)
+    # print(json_request)
     for key, value in json_request.items():
         if key == 'num_recipients':
             num_recipients = int(value)
@@ -133,7 +133,7 @@ def modifyTestCells(existing_test_cells, test_cells_from_json):
 
 @socketIo.on("fluctuate_mab_request")
 def handleMessage(json_request):
-    print('connections', connections)
+    # print('connections', connections)
 
     existing_naive_object = connections[request.sid]['naive']
     existing_MAB_object = connections[request.sid]['mab']
