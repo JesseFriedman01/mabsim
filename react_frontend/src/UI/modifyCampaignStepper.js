@@ -12,18 +12,20 @@ import AppBar from '@material-ui/core/AppBar';
 import TextField from '@material-ui/core/TextField';
 import TestCell from '../Testcell'
 import ErrorIcon from '@material-ui/icons/Error';
-import TestCellDrawerSummary from './TestCellDrawerSummary';
+import ModifyCampaignSummary from './modifyCampaignSummary';
+import Modal from '@material-ui/core/Modal';
+import Divider from '@material-ui/core/Divider';
 
 const useStyles = makeStyles((theme) => ({
   main: {
-    width: '70%',
-    marginLeft: "15%",
-    marginRight: "15%",
-    marginBottom: "10px"
+    display: 'flex',
+    justifyContent: 'center',
+    marginTop:'5%'
   },
-  root: {
-    width: '100%',
-    margin: "10 0 0 0",
+  paper: {
+    position: 'absolute',
+    boxShadow: theme.shadows[5],
+    borderRadius: '6px'
   },
   text_field: {
     width: '96%',
@@ -37,7 +39,8 @@ const useStyles = makeStyles((theme) => ({
     backgroundColor: theme.palette.primary.main,
     padding: theme.spacing(2),
     fontFamily: 'Segoe UI',
-    fontSize: "1.1rem"
+    fontSize: "1.1rem",
+    borderRadius: '4px 4px 0px 0px'
   },
   button: {
     marginRight: theme.spacing(1),
@@ -47,15 +50,18 @@ const useStyles = makeStyles((theme) => ({
     marginBottom: theme.spacing(1),
   },
   stepper:{
-    backgroundColor: '#ffe6ff'
+    backgroundColor: '#ffe6ff',
+    borderRadius: '6px'
   },
   error:{
     color:'red',
-    width: '80%',
-    marginBottom: theme.spacing(3),
-    marginLeft:'10%',
-    marginRight:'10%',
-  }
+    maxWidth:'70vh',
+    marginBottom: theme.spacing(2),
+    marginLeft: '2%'
+  },
+    button_div:{
+    padding: theme.spacing(2)
+  },
 }));
 
 const list = [{
@@ -77,28 +83,30 @@ function getSteps() {
           'Summary'];
 }
 
-export default function TestCellDrawerStepper(props) {
+export default function ModifyCampaignStepper(props) {
   const classes = useStyles();
   const [activeStep, setActiveStep] = React.useState(0);
   const steps = getSteps();
   const [roundChoice, setRoundChoice] = React.useState(localStorage.getItem('current_round'));
   const [status, setStatus] = React.useState(0);
   const [errorMsg, setErrorMsg] = React.useState(null);
-
-//    const [testCellsOriginal, setTestCellsOriginal] = React.useState(test_list)
-
   const [testCellsOriginal, setTestCellsOriginal] = React.useState(props.testCells)
   const [testCellsFromDrawer, setTestCellsFromDrawer] = React.useState(0)
   const [validationErrorMsg, setValidationErrorMsg] = React.useState('')
   const [apiData, setApiData] = React.useState(props.apiData)
+  const [open, setOpen] = React.useState(true);
 
   useEffect(() => {
     setApiData(props.apiData);
   }, [props.apiData]);
-//
-//    useEffect(() => {
-//    setTestCellsOriginal(props.testCells);
-//  }, [props.testCells]);
+
+   const handleOpen = () => {
+    setOpen(true);
+  };
+
+  const handleClose = () => {
+    props.setShowModifyWindow(false)
+  };
 
   const isStepOptional = (step) => {
     return null;
@@ -144,9 +152,11 @@ export default function TestCellDrawerStepper(props) {
   }
 
   const submitData = () => {
+      setOpen(false)
+      props.setShowModifyWindow(false)
+      props.setSideDrawerShouldBeOpen(false)
       setTestCellsFromDrawer(testCellsFromDrawer)
       setTestCellsOriginal(testCellsFromDrawer)
-      props.drawerClicked(true)
       props.setTestCells(testCellsFromDrawer)
       props.setStatus('modify test cells')
   }
@@ -189,19 +199,20 @@ export default function TestCellDrawerStepper(props) {
                     auto_update={false}
                     getTestCellDataFromDrawer={getTestCellDataFromDrawer}/>
         case 2:
-            return <TestCellDrawerSummary
+            return <ModifyCampaignSummary
                     testCells={testCellsFromDrawer}
                     roundChoice={roundChoice}/>
         }
   }
 
   return (
+  <Modal open={open} onClose={handleClose} id='modal'>
     <Grid className={classes.main}>
+    <div className={classes.paper}>
       <Grid item className={classes.stepper}>
         <div className={classes.title_box}>
             Modify Open Rates
         </div>
-        <Box boxShadow={1} pl={5} pb={5} pr={6} >
             <div className={classes.root}>
               <Stepper activeStep={activeStep} className={classes.stepper}>
                 {steps.map((label, index) => {
@@ -214,10 +225,11 @@ export default function TestCellDrawerStepper(props) {
                   );
                 })}
               </Stepper>
-                <div>
+
                     <Typography className={classes.instructions}>{getStepContent(activeStep)}</Typography>
                     {errorMsg}
-                    <div>
+                    <Divider />
+                    <div className={classes.button_div}>
                     <Button disabled={activeStep === 0} onClick={handleBack} className={classes.button}>
                         Back
                     </Button>
@@ -229,11 +241,11 @@ export default function TestCellDrawerStepper(props) {
                       >
                        {activeStep === steps.length - 1 ? 'Finish' : 'Next'}
                     </Button>
-               </div>
               </div>
             </div>
-          </Box>
         </Grid>
+        </div>
      </Grid>
+     </Modal>
   );
 }

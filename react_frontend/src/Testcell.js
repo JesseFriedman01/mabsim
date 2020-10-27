@@ -158,11 +158,19 @@ class TestCell extends Component {
    }
 
     render(){
+      const tableContainerStyle = {
+        overflowY:'auto',
+        maxHeight:'50vh',
+        marginLeft:'2%',
+        width:'96%'
+      };
+
       const addButtonStyle = {
         backgroundColor: '#039112',
         color: 'white',
         marginTop: '20px',
-        marginBottom: '10px'
+        marginBottom: '10px',
+        marginLeft:'2%'
       };
 
       const removeButtonStyle = {
@@ -177,12 +185,13 @@ class TestCell extends Component {
       const checkbox = {
         marginTop: '20px',
         marginBottom: '10px',
-        float:"right"
+        float:"right",
+        marginRight:'2%'
       };
 
     return(
             <div>
-            <TableContainer component={Paper}>
+             <TableContainer component={Paper} style={tableContainerStyle}>
                 <Table aria-label={this.table_type}>
                     {this.state.list.map( (item, i) =>
                       <TableRow key={item.id.toString()} style={{backgroundColor:"#white"}}>
@@ -253,7 +262,7 @@ class TestCell extends Component {
                     label="Auto allocate">
                 </FormControlLabel>
 
-                <hr style={hrStyle} />
+
               </> : null }
         </div>
     );

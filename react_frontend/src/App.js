@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import Header from './UI/header'
-import HorizontalLinearStepper from './UI/stepper'
 import {ThemeProvider } from '@material-ui/styles';
 import theme from './UI/theme'
 import { makeStyles } from '@material-ui/core/styles';
@@ -9,7 +8,6 @@ import CssBaseline from '@material-ui/core/CssBaseline';
 import APIFetch from './APIfetch_socketio';
 import PlotChart from './Chart/Plotchart';
 import ProgressBarAPI from './Progressbar';
-import TestCellDrawer from './Chart/TestCelldrawer';
 import ChartGrid from './Chart/Grid';
 import Home from './home'
 //import ChartTest from './charttest';
@@ -31,9 +29,6 @@ class App extends Component {
             status: null,
             api_data: null,
             api_progress: null,
-            disable_test_cell_button: true,
-            test_cell_drawer_button_clicked: null,
-            test_cell_drawer_open: false,
             pause_slider: true,
             side_drawer_open: false,
             sim_description: null
@@ -46,8 +41,6 @@ class App extends Component {
         this.getStatus = this.getStatus.bind(this);
         this.getAPIData = this.getAPIData.bind(this);
         this.getAPIProgress = this.getAPIProgress.bind(this);
-        this.getTestCellButtonVisible = this.getTestCellButtonVisible.bind(this);
-        this.getTestCellDrawerClicked = this.getTestCellDrawerClicked.bind(this);
         this.getCurrentRound = this.getCurrentRound.bind(this);
         this.getSimDescription = this.getSimDescription.bind(this);
     }
@@ -74,9 +67,6 @@ class App extends Component {
 
     getAPIData(data){
         console.log('api_data', data)
-//        var d = new Date();
-//        var n = d.getTime();
-//        console.log(data, n)
         this.setState({ api_data: data })
         this.setState({ disable_test_cell_button: false })
         this.setState({ status: 'idle' })
@@ -86,19 +76,6 @@ class App extends Component {
         this.setState({ api_progress: data })
         if (data===100)
             this.setState({ api_progress: 0 })
-    }
-
-    getTestCellButtonVisible(data){
-        this.setState({ disable_test_cell_button: data })
-    }
-
-    getTestCellDrawerClicked(data){
-        this.setState({ test_cell_drawer_button_clicked: data })
-        this.setState({ pause_slider: true })
-        if (this.state.test_cell_drawer_open === true)
-            this.setState({test_cell_drawer_open: false})
-        else
-            this.setState({test_cell_drawer_open: true})
     }
 
     getCurrentRound(data){
@@ -122,11 +99,11 @@ class App extends Component {
                  openSideDrawer={this.state.side_drawer_open}
                  setOpenSideDrawer={this.getOpenSideDrawer}
                  setStatus={this.getStatus}
-                 disableTestCellButton={this.state.disable_test_cell_button}
                  getTestCellDrawerClicked={this.getTestCellDrawerClicked}
                  getTestCellButtonVisible={this.getTestCellButtonVisible}
                  endPoint={endPoint}
                  socket={socket}
+                 APIData={this.state.api_data}
                  setAPIData={this.getAPIData}
                  numRounds={this.state.num_rounds}
                  setNumRounds={this.getNumRounds}
@@ -140,15 +117,24 @@ class App extends Component {
                 />
 
                <Switch>
+
+                     { this.state.status === 'data collected' ?
+                        <Redirect to='/charts' />:null
+                     }
+
                     <Route exact path="/" component={() =>
                         <Home
                          endPoint={endPoint}
                          socket={socket}
                          setAPIData={this.getAPIData}
                          setNumRounds={this.getNumRounds}
-                         setCampaignName={this.state.getCampaignName}
-                         setTestCells={this.getTestCells}/>}
+                         setCampaignName={this.getCampaignName}
+                         setTestCells={this.getTestCells}
+                         setStatus={this.getStatus}
+                         setNumRecipients={this.getNumRecipients}
+                         setSimDescription={this.getSimDescription}
                         />
+                    }/>
 
                     { this.state.api_data ?
                         <Route exact path="/charts" component={() =>
@@ -159,7 +145,6 @@ class App extends Component {
                             />
                          }/> : null
                      }
-
                 </Switch>
             </BrowserRouter>
 
@@ -194,17 +179,6 @@ class App extends Component {
                  endPoint={endPoint}
                  socket={socket}/>
                 :null
-            }
-
-            { this.state.test_cell_drawer_button_clicked === true ?
-               <TestCellDrawer
-                shouldBeOpen ={this.state.test_cell_drawer_open}
-                getTestCellDrawerClicked={this.getTestCellDrawerClicked}
-                testCells={this.state.test_cells}
-                getTestCells={this.getTestCells}
-                getStatus={this.getStatus}
-                api_data={this.state.api_data}
-               />:null
             }
 
             </ThemeProvider>

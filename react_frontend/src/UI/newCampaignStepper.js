@@ -10,20 +10,22 @@ import Grid from '@material-ui/core/Grid';
 import TextField from '@material-ui/core/TextField';
 import TestCell from '../Testcell'
 import ErrorIcon from '@material-ui/icons/Error';
-import CampaignSummary from './campaignSummary';
+import NewCampaignSummary from './newCampaignSummary';
 import Modal from '@material-ui/core/Modal';
 import { Redirect } from 'react-router-dom';
+import { Link } from "react-router-dom";
+import Divider from '@material-ui/core/Divider';
 
 const useStyles = makeStyles((theme) => ({
   main: {
     display: 'flex',
     justifyContent: 'center',
-    alignItems: 'center',
-    height:'100vh',
+    marginTop:'5%'
   },
-  root: {
-    width: '100%',
-    margin: "10 0 0 0",
+  paper: {
+    position: 'absolute',
+    boxShadow: theme.shadows[5],
+    borderRadius: '6px'
   },
   text_field: {
     width: '96%',
@@ -37,25 +39,29 @@ const useStyles = makeStyles((theme) => ({
     backgroundColor: theme.palette.primary.main,
     padding: theme.spacing(2),
     fontFamily: 'Segoe UI',
-    fontSize: "1.1rem"
+    fontSize: "1.1rem",
+    borderRadius: '4px 4px 0px 0px'
   },
   button: {
-    marginRight: theme.spacing(1),
+    marginRight: theme.spacing(1)
   },
   instructions: {
     marginTop: theme.spacing(1),
     marginBottom: theme.spacing(1),
   },
   stepper:{
-    backgroundColor: '#ffe6ff'
+    backgroundColor: '#ffe6ff',
+    borderRadius: '6px'
   },
   error:{
     color:'red',
-    width: '80%',
-    marginBottom: theme.spacing(3),
-    marginLeft:'10%',
-    marginRight:'10%',
-  }
+    maxWidth:'70vh',
+    marginBottom: theme.spacing(2),
+    marginLeft: '2%'
+  },
+  button_div:{
+    padding: theme.spacing(2)
+  },
 }));
 
 const list = [{
@@ -72,14 +78,14 @@ const list = [{
               }];
 
 function getSteps() {
-  return ['Create sim name',
+  return ['Enter sim name',
           'Select number of recipients per round',
           'Select number of rounds',
           'Create test cells',
           'Summary'];
 }
 
-export default function HorizontalLinearStepper(props) {
+export default function NewCampaignStepper(props) {
   const classes = useStyles();
   const [activeStep, setActiveStep] = React.useState(0);
   const steps = getSteps();
@@ -91,20 +97,25 @@ export default function HorizontalLinearStepper(props) {
   const [testCellInterval, setTestCellInterval] = React.useState(2)
   const [isAutoAllocate, setIsAutoAllocate] = React.useState(true)
   const [open, setOpen] = React.useState(true);
-  const [isComplete, setIsComplete] = React.useState(null);
 
   const handleOpen = () => {
     setOpen(true);
   };
 
+  const handleClose = () => {
+    props.setShowCreateWindow(false)
+  };
+
   const submitData = () => {
-    setOpen(false)
-    setIsComplete(<Redirect to='/charts' />)
     props.getCampaignName(campaignName)
     props.getNumRecipients(numRecipients)
     props.getNumRounds(numRounds)
     props.getTestCells(testCells)
     props.getStatus('data collected')
+    setOpen(false)
+    props.setShowCreateWindow(false)
+    if (props.setSideDrawerShouldBeOpen)
+        props.setSideDrawerShouldBeOpen(false)
   }
 
   const validateData = () => {
@@ -208,7 +219,7 @@ export default function HorizontalLinearStepper(props) {
                   auto_update="true"
                   />
         case 4:
-            return <CampaignSummary
+            return <NewCampaignSummary
                     testCells={testCells}
                     campaignName={campaignName}
                     numRecipients={numRecipients}
@@ -216,16 +227,15 @@ export default function HorizontalLinearStepper(props) {
         }
   }
 
+
   return (
-        <>
-        {isComplete}
-        <Modal open={open} id='modal'>
+        <Modal open={open} onClose={handleClose} id='modal'>
             <Grid className={classes.main}>
-              <Grid item className={classes.stepper}>
-                <div className={classes.title_box}>
-                    Create Sim
-                </div>
-                <Box boxShadow={1} pl={5} pb={5} pr={6} >
+                <div className={classes.paper}>
+                  <Grid item className={classes.stepper}>
+                    <div className={classes.title_box}>
+                        Create Sim
+                    </div>
                     <div className={classes.root}>
                       <Stepper activeStep={activeStep} className={classes.stepper}>
                         {steps.map((label, index) => {
@@ -238,28 +248,26 @@ export default function HorizontalLinearStepper(props) {
                           );
                         })}
                       </Stepper>
-                        <div>
-                            <Typography className={classes.instructions}>{getStepContent(activeStep)}</Typography>
-                            {errorMsg}
-                            <div>
-                            <Button disabled={activeStep === 0} onClick={handleBack} className={classes.button}>
-                                Back
-                            </Button>
-                            <Button
-                                variant="contained"
-                                color="primary"
-                                onClick={handleNext}
-                                className={classes.button}
-                             >
-                               {activeStep === steps.length - 1 ? 'Finish' : 'Next'}
-                            </Button>
-                       </div>
+                      <Typography className={classes.instructions}>{getStepContent(activeStep)}</Typography>
+                      {errorMsg}
+                      <Divider />
+                      <div className={classes.button_div}>
+                          <Button disabled={activeStep === 0} onClick={handleBack} className={classes.button}>
+                            Back
+                          </Button>
+                          <Button
+                            variant="contained"
+                            color="primary"
+                            onClick={handleNext}
+                            className={classes.button}
+                          >
+                            {activeStep === steps.length - 1 ? 'Finish' : 'Next'}
+                          </Button>
                       </div>
                     </div>
-                  </Box>
-                </Grid>
+                  </Grid>
+                </div>
              </Grid>
          </Modal>
-         </>
   );
 }

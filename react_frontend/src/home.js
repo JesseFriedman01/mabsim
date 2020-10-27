@@ -6,6 +6,7 @@ import Button from '@material-ui/core/Button';
 import ButtonGroup from '@material-ui/core/ButtonGroup';
 import {Link} from "react-router-dom"
 import LoadCampaign from './UI/loadCampaign';
+import NewCampaignStepper from './UI/newCampaignStepper'
 
 const useStyles = makeStyles((theme) => ({
   img: {
@@ -37,10 +38,23 @@ export default function Home(props) {
         setShowLoadWindow(true)
     }
 
+    const handleCreateClick = () => {
+        setShowCreateWindow(true)
+    }
     return(
         <>
+         {showCreateWindow===true ? <NewCampaignStepper
+                                     setShowCreateWindow={setShowCreateWindow}
+                                     getCampaignName={props.setCampaignName}
+                                     getNumRecipients={props.setNumRecipients}
+                                     getNumRounds={props.setNumRounds}
+                                     getTestCells={props.setTestCells}
+                                     getStatus={props.setStatus}
+                                    />
+                                  : null
+         }
          {showLoadWindow===true ? <LoadCampaign
-                                    campaignName={props.campaignName}
+                                    setCampaignName={props.setCampaignName}
                                     setShowLoadWindow={setShowLoadWindow}
                                     setSideDrawerShouldBeOpen={props.setOpenSideBar}
                                     endPoint={props.endPoint}
@@ -48,6 +62,7 @@ export default function Home(props) {
                                     setAPIData={props.setAPIData}
                                     setNumRounds={props.setNumRounds}
                                     setTestCells={props.setTestCells}
+                                    setSimDescription={props.setSimDescription}
                                    />
                                   : null
          }
@@ -58,7 +73,7 @@ export default function Home(props) {
             <div className={classes.button_group}>
                 <ButtonGroup color="primary" aria-label="outlined primary button group">
                     <Button style={{minWidth: '180px'}} component={Link} to="/">Getting started</Button>
-                    <Button component={Link} to="/create">Create a sim</Button>
+                    <Button onClick={handleCreateClick}>Create a sim</Button>
                     <Button onClick={handleLoadClick}>Load a sim</Button>
                 </ButtonGroup>
             </div>

@@ -26,7 +26,7 @@ export default function APIFetch(props) {
 
     const getData = () => {
         props.getAPIData(null)
-        props.socket.on('new_results', (result) => {
+        props.socket.once('new_results', (result) => {
             props.getAPIData(JSON.parse(result));
         });
         props.socket.on('progress', (result) => {

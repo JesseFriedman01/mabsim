@@ -17,7 +17,8 @@ import ExpandMore from '@material-ui/icons/ExpandMore';
 import Collapse from '@material-ui/core/Collapse';
 import SaveCampaign from './saveCampaign';
 import LoadCampaign from './loadCampaign';
-import HorizontalLinearStepper from './stepper'
+import NewCampaignStepper from './newCampaignStepper'
+import ModifyCampaign from './modifyCampaign';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -45,7 +46,6 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-
 export default function SideDrawer(props) {
     const [shouldBeOpen, setShouldBeOpen] = React.useState(props.openSideBar)
     const [gettingStartedOpen, setGettingStartedOpen] = React.useState(false)
@@ -53,6 +53,7 @@ export default function SideDrawer(props) {
     const [showCreateWindow, setShowCreateWindow] = React.useState(false)
     const [showSaveWindow, setShowSaveWindow] = React.useState(false)
     const [showLoadWindow, setShowLoadWindow] = React.useState(false)
+    const [showModifyWindow, setShowModifyWindow] = React.useState(false)
 
     const classes = useStyles();
 
@@ -89,7 +90,12 @@ export default function SideDrawer(props) {
     };
 
     const handleCreateClick = () => {
+        props.setSimDescription(null)
         setShowCreateWindow(true)
+    }
+
+    const handleModifyClick = () => {
+        setShowModifyWindow(true)
     }
 
     const toggleDrawer = () => () => {
@@ -100,12 +106,14 @@ export default function SideDrawer(props) {
 
     return (
         <>
-         {showCreateWindow===true ? <HorizontalLinearStepper
+         {showCreateWindow===true ? <NewCampaignStepper
+                                     setShowCreateWindow={setShowCreateWindow}
                                      getCampaignName={props.setCampaignName}
                                      getNumRecipients={props.setNumRecipients}
                                      getNumRounds={props.setNumRounds}
                                      getTestCells={props.setTestCells}
                                      getStatus={props.setSimStatus}
+                                     setSideDrawerShouldBeOpen={props.setOpenSideDrawer}
                                     />
                                   : null
          }
@@ -134,6 +142,17 @@ export default function SideDrawer(props) {
                                    setSimDescription={props.setSimDescription}
                                    />
                                   : null
+         }
+          {showModifyWindow===true ? <ModifyCampaign
+                                       setShowModifyWindow={setShowModifyWindow}
+                                       setSideDrawerShouldBeOpen={props.setOpenSideDrawer}
+                                       testCells={props.testCells}
+                                       getTestCells={props.setTestCells}
+                                       getStatus={props.setSimStatus}
+                                       api_data={props.APIData}
+                                       />
+                                       : null
+
          }
          <div className={classes.root}>
               <Drawer
@@ -166,21 +185,21 @@ export default function SideDrawer(props) {
 
                   <List component="nav">
                       <ListItem button onClick={handleSimOptionsClick}>
-                          <ListItemText disableTypography className={classes.mainListItem} primary="Sim Options"/>
+                          <ListItemText disableTypography className={classes.mainListItem} primary="Simulation"/>
                            {simOptionsOpen ? <ExpandLess /> : <ExpandMore />}
                       </ListItem>
                       <Collapse in={simOptionsOpen} timeout="auto" unmountOnExit>
                           <List component="div" disablePadding>
                             <ListItem button onClick={handleCreateClick} className={classes.nestedListItem}>
-                              <ListItemText disableTypography primary="Create" />
+                              <ListItemText disableTypography primary="New" />
                             </ListItem>
                             <ListItem button onClick={handleLoadClick} className={classes.nestedListItem}>
                               <ListItemText disableTypography primary="Load" />
                             </ListItem>
-                            <ListItem button disabled={props.disableTestCellButton} onClick={toggleDrawer()} className={classes.nestedListItem}>
+                            <ListItem button disabled={window.location.pathname === '/charts' ? false : true} onClick={handleModifyClick} className={classes.nestedListItem}>
                               <ListItemText disableTypography primary="Modify" />
                             </ListItem>
-                            <ListItem button onClick={handleSaveClick} disabled={props.disableSaveButton} className={classes.nestedListItem}>
+                            <ListItem button disabled={window.location.pathname === '/charts' ? false : true} onClick={handleSaveClick} className={classes.nestedListItem}>
                               <ListItemText disableTypography primary="Save" />
                             </ListItem>
                           </List>

@@ -2,36 +2,44 @@ import React, { useEffect } from 'react';
 import Drawer from "@material-ui/core/Drawer";
 import Container from '@material-ui/core/Container';
 import { makeStyles } from '@material-ui/core/styles';
-import TestCellDrawerStepper from './TestCellDrawerStepper'
+import ModifyCampaignStepper from './modifyCampaignStepper'
 import CloseIcon from '@material-ui/icons/Close';
 import IconButton from '@material-ui/core/IconButton';
+import Modal from '@material-ui/core/Modal';
 
 const useStyles = makeStyles((theme) => ({
-    paper: {
-        background: "#bdbbbb",
-        maxHeight: "90%",
-        minHeight: "50%",
-        elevation:3,
-        borderStyle: 'solid',
-        borderTopWidth:1,
-        borderBottomWidth:0,
-        borderLeftWidth:0,
-        borderRightWidth:0,
-        borderColor: '#404040'
-
-    },
-    submitButtonStyle: {
+  main: {
+    display: 'flex',
+    justifyContent: 'center',
+    marginTop:'5%'
+  },
+  paper: {
+    position: 'absolute',
+    backgroundColor: '#ffe6ff',
+    boxShadow: theme.shadows[5],
+    borderRadius: '6px'
+  },
+  title_box: {
+    color: 'white',
+    backgroundColor: theme.palette.primary.main,
+    padding: theme.spacing(2),
+    fontFamily: 'Segoe UI',
+    fontSize: "1.1rem",
+    marginBottom:"20px",
+    borderRadius: '4px 4px 0px 0px'
+  },
+  submitButtonStyle: {
         backgroundColor: '#039112',
         color: 'white',
         marginTop:'10px',
         marginRight:'5px'
-    },
-    cancelButtonStyle: {
+  },
+  cancelButtonStyle: {
         backgroundColor: '#ff001e',
         color: 'white',
         marginTop:'10px',
 //        float:"right"
-    }
+  }
 }));
 
 //const test_list = [{
@@ -48,7 +56,7 @@ const useStyles = makeStyles((theme) => ({
 //          },
 //         ];
 
-export default function TestCellDrawer(props) {
+export default function ModifyCampaign(props) {
 //    const [testCellsOriginal, setTestCellsOriginal] = React.useState(test_list)
 
     const [testCellsOriginal, setTestCellsOriginal] = React.useState(props.testCells)
@@ -69,50 +77,17 @@ export default function TestCellDrawer(props) {
         setTestCellsFromDrawer(data)
     }
 
-    const buttonCancelClick = () => {
-        setValidationErrorMsg('')
-        props.getTestCellDrawerClicked(true)
-        setTestCellsOriginal(testCellsOriginal)
-    }
-
-    const handleClickAway = () => {
-        props.getTestCellDrawerClicked(true)
-    }
-
-    const handleOpen = () => {
-        setOpen(true);
-    };
-
-    const handleClose = () => {
-        props.setShowLoadWindow(false)
-    };
-
     const classes = useStyles();
 
     return (
-
-          <Drawer
-            variant="temporary"
-            classes={{ paper: classes.paper }}
-            anchor="bottom"
-            open={props.shouldBeOpen}
-            onBackdropClick={handleClickAway}
-          >
-          <IconButton
-            style={{marginLeft:'auto'}}
-            onClick={handleClickAway}
-            color="inherit"
-           >
-            <CloseIcon />
-          </IconButton>
-          <TestCellDrawerStepper
-            testCells={testCellsOriginal}
-            apiData={apiData}
-            drawerClicked={props.getTestCellDrawerClicked}
-            setTestCells={props.getTestCells}
-            setStatus={props.getStatus}
-          />
-          </Drawer>
+            <ModifyCampaignStepper
+                testCells={testCellsOriginal}
+                apiData={apiData}
+                setTestCells={props.getTestCells}
+                setStatus={props.getStatus}
+                setShowModifyWindow={props.setShowModifyWindow}
+                setSideDrawerShouldBeOpen={props.setSideDrawerShouldBeOpen}
+            />
 
         );
 }

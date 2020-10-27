@@ -14,8 +14,7 @@ const useStyles = makeStyles((theme) => ({
   main: {
     display: 'flex',
     justifyContent: 'center',
-    alignItems: 'center',
-    height:'100vh',
+    marginTop:'5%'
   },
   text_field: {
     width: '96%',
@@ -26,9 +25,9 @@ const useStyles = makeStyles((theme) => ({
   },
   paper: {
     position: 'absolute',
-
     backgroundColor: '#ffe6ff',
     boxShadow: theme.shadows[5],
+    borderRadius: '6px'
   },
   title_box: {
     color: 'white',
@@ -36,7 +35,8 @@ const useStyles = makeStyles((theme) => ({
     padding: theme.spacing(2),
     fontFamily: 'Segoe UI',
     fontSize: "1.1rem",
-    marginBottom:"20px"
+    marginBottom:"20px",
+    borderRadius: '4px 4px 0px 0px'
   },
   button_div:{
     padding: theme.spacing(2)
@@ -113,7 +113,6 @@ export default function LoadCampaign(props) {
                 }
                 <Divider />
                 <div className={classes.button_div}>
-                    <Button variant="text" onClick={handleClose}>Cancel</Button>
                     <Button color="primary"
                         variant="contained"
                         onClick={loadData}

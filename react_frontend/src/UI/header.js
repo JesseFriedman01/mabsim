@@ -63,7 +63,6 @@ export default function Header(props) {
     setOpenSideDrawer(status)
   }
 
-
   return (
     <div className={classes.root}>
       <Box pb={3}>
@@ -96,9 +95,7 @@ export default function Header(props) {
         openSideDrawer={openSideDrawer}
         setOpenSideDrawer={setOpenSideDrawer}
         setSideDrawerStatus={getSideDrawerStatus}
-        setDisableTestCellButton={setDisableTestCellButton}
         getTestCellButtonVisible={props.getTestCellButtonVisible}
-        disableSaveButton={props.disableTestCellButton}
         endPoint={props.endPoint}
         socket={props.socket}
         setAPIData={props.setAPIData}
@@ -108,7 +105,6 @@ export default function Header(props) {
         setCampaignName={props.setCampaignName}
         testCells={props.testCells}
         setTestCells={props.setTestCells}
-        disableTestCellButton = {props.disableTestCellButton}
         getTestCellDrawerClicked = {props.getTestCellDrawerClicked}
         simDescription={props.simDescription}
         setSimDescription={props.setSimDescription}

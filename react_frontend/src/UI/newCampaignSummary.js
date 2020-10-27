@@ -10,7 +10,7 @@ import Box from '@material-ui/core/Box';
 import TableHead from '@material-ui/core/TableHead';
 import TableBody from '@material-ui/core/TableBody';
 
-class TestCellDrawerSummary extends Component {
+class NewCampaignSummary extends Component {
     constructor(props) {
         super(props);
     }
@@ -28,7 +28,15 @@ class TestCellDrawerSummary extends Component {
             <Container component={Paper} style={{padding:"20px", marginBottom:"20px"}} >
             <Typography variant="body1">
                 <div>
-                    <b>Changing in Round: </b> {this.props.roundChoice}
+                    <b>Campaign Name: </b> {this.props.campaignName}
+                </div>
+                <br />
+                <div>
+                    <b>Num. Recipients: </b> {this.props.numRecipients}
+                </div>
+                <br />
+                <div>
+                    <b>Num. Rounds: </b> {this.props.numRounds}
                 </div>
                 <br />
             </Typography>
@@ -37,7 +45,8 @@ class TestCellDrawerSummary extends Component {
                 <Table aria-label="a dense table">
                         <TableRow style={{backgroundColor:"#c9c9c9"}}>
                             <TableCell style={cellStyle}><b>Name</b></TableCell>
-                            <TableCell style={cellStyle}><b>New Open Rate (%)</b></TableCell>
+                            <TableCell style={cellStyle}><b>Open Rate (%)</b></TableCell>
+                            <TableCell style={cellStyle}><b>Percent Allocation (%)</b></TableCell>
                         </TableRow>
 
                     <TableBody>
@@ -45,16 +54,16 @@ class TestCellDrawerSummary extends Component {
                             <TableRow key={item.id.toString()}>
                                 <TableCell style={cellStyle}>{item.name}</TableCell>
                                 <TableCell style={cellStyle}>{item.open_rate}</TableCell>
+                                <TableCell style={cellStyle}>{item.percent_allocation}</TableCell>
                             </TableRow>
                          )}
                     </TableBody>
                 </Table>
             </TableContainer>
             </Container>
-            <hr />
          </React.Fragment>
         )
     }
 }
 
-export default TestCellDrawerSummary;
+export default NewCampaignSummary;

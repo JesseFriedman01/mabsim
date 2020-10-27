@@ -6,18 +6,16 @@ import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
 import Divider from '@material-ui/core/Divider';
 
+
 const useStyles = makeStyles((theme) => ({
   main: {
     display: 'flex',
     justifyContent: 'center',
-    alignItems: 'center',
-    height:'100vh',
+    marginTop:'5%',
   },
   text_field: {
     width: '96%',
     marginBottom: theme.spacing(3),
-    marginLeft:'2%',
-    marginRight:'2%',
     backgroundColor:'#edebeb'
   },
   paper: {
@@ -25,6 +23,7 @@ const useStyles = makeStyles((theme) => ({
     width: 400,
     backgroundColor: '#ffe6ff',
     boxShadow: theme.shadows[5],
+    borderRadius: '6px'
   },
   title_box: {
     color: 'white',
@@ -32,7 +31,8 @@ const useStyles = makeStyles((theme) => ({
     padding: theme.spacing(2),
     fontFamily: 'Segoe UI',
     fontSize: "1.1rem",
-    marginBottom:"20px"
+    marginBottom:"20px",
+    borderRadius: '4px 4px 0px 0px'
   },
   button_div:{
     padding: theme.spacing(2)
@@ -90,7 +90,6 @@ export default function SaveCampaign(props) {
                 </div>
                 <Divider />
                 <div className={classes.button_div}>
-                    <Button variant="text" onClick={handleClose}>Cancel</Button>
                     <Button color="primary" variant="contained" onClick={handleSave}>Save</Button>
                 </div>
             </div>
