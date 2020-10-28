@@ -11,7 +11,6 @@ import Card from '@material-ui/core/Card';
 import CardActions from '@material-ui/core/CardActions';
 import CardContent from '@material-ui/core/CardContent';
 import Typography from '@material-ui/core/Typography';
-
 import createPlotlyComponent from 'react-plotly.js/factory';
 
 const Plotly = window.Plotly;
@@ -72,7 +71,6 @@ class PlotChart extends Component {
     createPlots(){
         var plots = [];
         const x_axis_vals = [...Array(this.state.num_rounds).keys()]
-
         let counter = 0
         for (var key in this.state.API_output){
             if (this.state.slice_y_axis === false)
@@ -118,7 +116,7 @@ class PlotChart extends Component {
                         {this.props.help_text['Why is it important?']}
                       </CardContent>
                       <CardActions>
-                        <Button variant="contained" onClick={() => { this.setState({help_button_clicked:false}) }} >Return to Chart</Button>
+                        <Button variant="outlined" color="primary" onClick={() => { this.setState({help_button_clicked:false}) }} >Return to Chart</Button>
                       </CardActions>
                     </Card>
              </Slide>

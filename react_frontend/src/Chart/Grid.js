@@ -161,9 +161,7 @@ class ChartGrid extends React.Component {
                     )}
                 </GridLayout>
             </div>
-
         )
-
   }
 }
 

@@ -75,6 +75,8 @@ export default function LoadCampaign(props) {
   };
 
   const loadData = () => {
+    if (!itemSelectedFromTable) return null
+    props.setAPIData(null)
     props.socket.emit("select_saved_sim", itemSelectedFromTable)
     props.socket.on('data_for_selected_sim', (result) => {
         const numRounds = parseInt(result[0][1])
@@ -96,7 +98,7 @@ export default function LoadCampaign(props) {
   }
 
   return (
-   <Modal open={open} onClose={handleClose}>
+   <Modal open={open} onClose={handleClose} onKeyUp={ (event ) => {if (event.key === 'Enter') loadData()} }>
         <div className={classes.main}>
             <div className={classes.paper}>
                 <div className={classes.title_box}>

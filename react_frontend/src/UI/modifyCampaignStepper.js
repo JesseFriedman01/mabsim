@@ -206,7 +206,7 @@ export default function ModifyCampaignStepper(props) {
   }
 
   return (
-  <Modal open={open} onClose={handleClose} id='modal'>
+  <Modal open={open} onClose={handleClose} id='modal' onKeyUp={ (event ) => {if (event.key === 'Enter') handleNext()} }>
     <Grid className={classes.main}>
     <div className={classes.paper}>
       <Grid item className={classes.stepper}>

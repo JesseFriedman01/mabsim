@@ -98,6 +98,7 @@ export default function Header(props) {
         getTestCellButtonVisible={props.getTestCellButtonVisible}
         endPoint={props.endPoint}
         socket={props.socket}
+        APIData={props.APIData}
         setAPIData={props.setAPIData}
         numRounds={props.numRounds}
         setNumRounds={props.setNumRounds}

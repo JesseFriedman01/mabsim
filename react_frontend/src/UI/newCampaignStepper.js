@@ -227,10 +227,14 @@ export default function NewCampaignStepper(props) {
         }
   }
 
+  const test=(event)=>{
+
+    console.log(event.key)
+  }
 
   return (
-        <Modal open={open} onClose={handleClose} id='modal'>
-            <Grid className={classes.main}>
+        <Modal open={open} onClose={handleClose} id='modal' onKeyUp={ (event ) => {if (event.key === 'Enter') handleNext()} }>
+            <Grid className={classes.main} >
                 <div className={classes.paper}>
                   <Grid item className={classes.stepper}>
                     <div className={classes.title_box}>

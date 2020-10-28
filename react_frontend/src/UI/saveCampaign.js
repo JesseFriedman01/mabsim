@@ -63,7 +63,7 @@ export default function SaveCampaign(props) {
   }
 
   return (
-   <Modal open={open} onClose={handleClose}>
+   <Modal open={open} onClose={handleClose} onKeyUp={ (event ) => {if (event.key === 'Enter') handleSave()} }>
         <div className={classes.main}>
             <div className={classes.paper}>
                 <div className={classes.title_box}>
